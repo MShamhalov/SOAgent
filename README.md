@@ -1,93 +1,118 @@
-# SOAgent
+### Основные функции библиотеки:
+- Библиотека работает в средах Linux и Windows
+- Поддерживаются CRUD операции c записями таблиц
+- Поддержка запросов в таблицу, и получение результатов (sys_id)*
+- Загрузка вложений в SimpleOne*
+- Запуск серверных скриптов на стороне SimpleOne.
+- Доступный API с документацией
+- Поддержка протокола https 
+- В библиотеке применяется только стандартная библиотека NodeJS, без использования сторонних зависимостей (npm)
+- В библиотеке используется асинхронное взаимодействия (Promise), что позволяет выполнять следующие операции только после успешного завершения предыдущих, и при этом избегать вложенных друг в друга callback-функций (callback hell).
 
+### Первые шаги
+Для начала следует корректно заполнить поля в конфигурационном файле SOAgent.conf. Для получения токена пользователя следует осуществить вход от имени учетной записи с правами администратора на инстансе SimpleOne. Далее перейти в браузере в режим разработчика (Клавиша F12) и набрать в консоли браузера 's_user.accessToken' в ответ в браузере высветится токен. Внимание! При внесении токена в конфигурационный файл, надо перед ним установить приставку - "Bearer" с пробелом (Чтобы получилось: "token": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",). 
+Указать в том же файле адрес инстанса.
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+### Скелет скрипта
 ```
-cd existing_repo
-git remote add origin http://gitlab.7cad97352f88.vps.myjino.ru/magomed/soagent.git
-git branch -M main
-git push -uf origin main
+import SOAgent from './modules/SOAgentInterface.js';
+const sa = new SOAgent();
+
+(async function () {
+  // место для вашего кода
+
+})();
+```
+ 
+### Добавление объекта
+Задаем объект, ключами в котором выступают названия полей, а значениями - значения которые будут помещены
+и добавляем запись в таблицу itsm_incident
+```
+const insertObject = JSON.stringify({
+  subject: 'Не работает беспроводная клавиатура Roxy M11',
+});
+const insertedRecordString = await sa.insertRecord('itsm_incident', insertObject);
 ```
 
-## Integrate with your tools
+Если требуется получить какие-то значения из только что созданной записи, используем метод getValue()
+```
+const recordId = sa.getValue(insertedRecordString, 'sys_id');
+const recordNumber = sa.getValue(insertedRecordString, 'number');
+const recordSubject = sa.getValue(insertedRecordString, 'subject');
+console.log(recordId, recordNumber, recordSubject);
+```
 
-- [ ] [Set up project integrations](http://gitlab.7cad97352f88.vps.myjino.ru/magomed/soagent/-/settings/integrations)
+### Чтение объекта
+```
+const recordId = '151195398492734076';
+const readedRecordString = await sa.readRecord('itsm_incident', recordId);
 
-## Collaborate with your team
+console.log('sys_id: ' + sa.getValue(readedRecordString, 'sys_id'));
+console.log('namber: ' + sa.getValue(readedRecordString, 'number'));
+console.log('subject: ' + sa.getValue(readedRecordString, 'subject'));
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Обновление объекта 
+```
+const recordId = '151195398492734076';
+const updateObject = JSON.stringify({
+  subject: 'Не работает беспроводная мышь Proxy M1',
+});
+const updatedRecordString = await sa.updateRecord('itsm_incident', recordId, updateObject);
+console.log(updatedRecordString);
+```
 
-## Test and Deploy
+### Удаление объекта
+```
+const recordId = '151195398492734076';
+const deleteRecordString = await sa.deleteRecord('itsm_incident', recordId);
+console.log(deleteRecordString);
+```
 
-Use the built-in continuous integration in GitLab.
+### Запуск скрипта из локального файла - на инстансе SimpleOne и получение результата
+```
+const filePath = './SimpleOne/SOAgent/attachs/script1.js';
+const result = await sa.runScript(filePath);
+console.log(result);
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Запрос данных из таблицы*
+Запрос всех записей удовлетворяющих условию (custom) записей и вывод значения конкретного поля из этих записей
+```
+const queryString = 'state!=10^subjectLIKEне работает';
+const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
+console.log(getRecordsByQuery);
+```
 
-***
+### Получение DocId из известных TableName и RecordId*
+```
+const tableName = 'itsm_incident';
+const sysId = '171195597496013110';
+const DocId = await sa.getDocIdValue(tableName, sysId);
+console.log(DocId);
+```
 
-# Editing this README
+### Загрузка файла на инстанс SimpleOne*
+Есть ограничения на размер файла который может быть загружен таким образом (ок. 65МБ).
+```
+const tableName = 'itsm_incident';
+const sysId = '171195597496013110';
+const DocId = await sa.getDocIdValue(tableName, sysId);
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+const filePath = './SimpleOne/SOAgent/attachs/video2.mkv';
+const attachId = await sa.attachFileToRecord(DocId, filePath);
+console.log(attachId);
+```
+\* Осуществляется только при установке дополнительного sop-файла 'ShMG SOAgent RestAPI Pack.sop' для приложения ITSM
 
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Примеры использования
+1. Запрос из таблицы всех записей удовлетворяющих условию и вытягивание номера запроса из каждой записи.
+```
+const queryString = 'state!=10^subjectLIKEне работает';
+const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
+getRecordsByQuery.result.forEach(async (current) => {
+  const readedRecordString = await sa.readRecord('itsm_incident', current);
+  const number = sa.getValue(readedRecordString, 'number');
+  console.log(number);
+});
+```

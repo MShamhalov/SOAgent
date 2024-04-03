@@ -1,0 +1,26 @@
+(function (request, response) {
+  const params = request.getQueryParams();
+  if (params.table_name && params.record_id) {
+    const tableId = getTableId(params.table_name);
+    const docId = ss.getDocIdByIds(tableId, params.record_id);
+    
+    response.setBody({
+        "status": "ok",
+        "DocId": docId,
+    });
+  } else {
+        response.setBody({
+        "status": "error",
+    });
+  }
+
+
+  
+})(SimpleApiRequest, SimpleApiResponse);
+
+  function getTableId(tableName) {
+  const table = new SimpleRecord('sys_db_table');
+  table.get('name', tableName);
+
+  return table.getValue('sys_id');
+}
