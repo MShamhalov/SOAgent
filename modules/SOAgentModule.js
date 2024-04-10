@@ -72,7 +72,6 @@ export default class SimpleOneAgent {
           break;
       }
     } else {
-
     }
 
     return { method, path };

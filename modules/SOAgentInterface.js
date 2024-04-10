@@ -1,4 +1,4 @@
-const confFilePath = './SimpleOne/SOAgent/SOAgent.conf';
+const confFilePath = './SOAgent.conf';
 // import http from 'http';
 import https from 'https';
 import fs from 'fs';
@@ -9,6 +9,7 @@ const conf = SOAgentModule.getConfiguration(fs, confFilePath);
 
 export default class SimpleOneAgentInterface {
   constructor() {}
+
 
   insertRecord(tableName, obj) {
     return SOAgentModule.insertRecord(https, conf, tableName, obj);
@@ -65,6 +66,13 @@ export default class SimpleOneAgentInterface {
     };
 
     return SOAgentModule.attachFileToRecord(https, conf, JSON.stringify(contentObject));
+  }
+
+  getRecordUrlBySysId(objSysId) {
+    let scriptStr = `const recordID='${objSysId}';const tables=new SimpleRecord('sys_db_table');tables.addEncodedQuery('name!=sys_re_table');tables.query();while(tables.next()){const current=new SimpleRecord(tables.name);current.get(recordID);if(!current.sys_id){continue;}else{const candidateTable=tables.name;const tableName=getCurrentTable(candidateTable,recordID);ss.debug('https://${conf.instance}/record/'+tableName+'/'+recordID);break;}}function getCurrentTable(candidateTable,recordId){const SYS_DB_TABLE_IDENTITY='155931135900000015';const record=new SimpleRecord(candidateTable);record.get(recordId);if(record.sys_db_table_id===SYS_DB_TABLE_IDENTITY){return candidateTable;}const tableID=record.getValue('sys_db_table_id');const currentTable=new SimpleRecord('sys_db_table'); currentTable.get(tableID); return currentTable.getValue('name');}`;
+    const content = JSON.stringify({"script": scriptStr});
+
+    return SOAgentModule.runScript(https, conf, content);
   }
 
   getMIMEtype(extension) {
