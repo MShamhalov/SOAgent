@@ -35,4 +35,18 @@ export default class SimpleOneIncludes {
     return scriptStr;
   }
 
+  IGetDocID(tableName, recordId) {
+    const scriptStr = `const tableId = getTableId('${tableName}');
+    const docId = ss.getDocIdByIds(tableId, ${recordId});
+    ss.debug(docId);
+
+    function getTableId(table_name) {
+      const table = new SimpleRecord('sys_db_table');
+      table.get('name', table_name);
+
+      return table.getValue('sys_id');
+    }`;
+
+    return scriptStr;
+  }
 }

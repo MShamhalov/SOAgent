@@ -51,8 +51,11 @@ export default class SimpleOneAgentInterface {
     return String(result);
   }
 
-  getDocIdValue(tableName, sysId) {
-    return SOAgentModule.getDocIdValue(https, conf, tableName, sysId);
+  getDocId(tableName, sysId) {
+    const scriptStr = SOAgentIncludes.IGetDocID(tableName, sysId);
+    const content = JSON.stringify({"script": scriptStr});
+    
+    return SOAgentModule.runScript(https, conf, content);
   }
 
   attachFileToRecord(docId, filePath) {
