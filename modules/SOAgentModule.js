@@ -177,7 +177,7 @@ export default class SimpleOneAgent {
             result += data;
           })
           .on('end', (er) => {
-            resolve(JSON.parse(result).result);
+            resolve(JSON.parse(result));
             request.end();
           });
       });
