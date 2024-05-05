@@ -14,7 +14,7 @@ export default class SimpleOneAgent {
       path: options.path,
       method: options.method,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': options.content_type,
         ForceUseSession: 'true',
         Authorization: conf.token,
       },
@@ -26,37 +26,44 @@ export default class SimpleOneAgent {
     const cstActions = ['query', 'docid', 'attachB64File'];
     let path = '';
     let method = '';
+    let content_type = '';
 
     if (stdActions.includes(action)) {
       switch (action) {
         case 'insert':
           path = `/rest/v1/table/${tableName}`;
           method = 'POST';
+          content_type = 'application/json';
           break;
 
         case 'read':
           path = `/rest/v1/table/${tableName}/${sysId}`;
           method = 'GET';
+          content_type = 'application/json';
           break;
 
         case 'update':
           path = `/rest/v1/table/${tableName}/${sysId}`;
           method = 'PATCH';
+          content_type = 'application/json';
           break;
 
         case 'delete':
           path = `/rest/v1/table/${tableName}/${sysId}`;
           method = 'DELETE';
+          content_type = 'application/json';
           break;
 
         case 'runScript':
           path = '/v1/admin-script/run';
           method = 'POST';
+          content_type = 'application/json';
           break;
 
         case 'attachFile':
-          path = `/v1/attachments/upload/${tableName}/${sysId}`;
+          path = `/v1/attachments/upload/sys_attachment/${sysId}`;
           method = 'POST';
+          content_type = 'multipart/form-data';
           break;
       }
     } else if (cstActions.includes(action)) {
@@ -64,22 +71,25 @@ export default class SimpleOneAgent {
         case 'query':
           path = `/v1/api/itsm_itsm/soagent/query?table_name=${tableName}`;
           method = 'POST';
+          content_type = 'application/json';
           break;
 
         case 'docid':
           path = `/v1/api/itsm_itsm/soagent/docid?table_name=${tableName}&record_id=${sysId}`;
           method = 'GET';
+          content_type = 'application/json';
           break;
 
         case 'attachB64File':
           path = `/v1/api/itsm_itsm/soagent/attach_file`;
           method = 'POST';
+          content_type = 'application/json';
           break;
       }
     } else {
     }
 
-    return { method, path };
+    return { method, path, content_type};
   }
 
   async insertRecord(https, conf, tableName, obj) {
@@ -242,9 +252,28 @@ export default class SimpleOneAgent {
     return functionResult;
   }
 
-  async attachFileToRecord(https, conf, content) {
-    const options = this.getOptions(conf, tableName, sysId, 'attachFile');
-
+  async attachFileToRecord(https, conf, surrogaterecordId, content) {
+    const options = this.getOptions(conf, null, surrogaterecordId, 'attachFile');
+    const functionResult = new Promise((resolve, reject) => {
+      // const request = https.request(options, (response) => {
+    //     let result = '';
+    //     response
+    //       .on('data', (data) => {
+    //         result += data;
+    //       })
+    //       .on('end', (er) => {
+    //         resolve(result);
+    //         request.end();
+    //       });
+    //   });
+    //   request.on('error', (error) => {
+    //     reject(error);
+    //     request.end();
+    //   });
+    //   request.write(content);
+    //   request.end();
+    });
+    
     return options;
   }
 

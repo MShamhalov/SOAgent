@@ -66,13 +66,14 @@ export default class SimpleOneAgentInterface {
   }
 
   attachFileToRecord(filePath) {
-    const scriptStr = SOAgentIncludes.ICreateAttachSurrogateRecord();
-    const content = JSON.stringify({"script": scriptStr});
+    const content = SOAgentIncludes.ICreateAttachSurrogateRecord();
+    const surrogaterecordId = SOAgentModule.runScript(https, conf, content);
+    // return surrogaterecordId;
+    const fileContent = '';
+    SOAgentModule.attachFileToRecord(https, conf, surrogaterecordId, fileContent);
+    //const scriptStr2 = SOAgentIncludes.ICreateAttachRecord(surrogaterecordId);
 
-    return(content);
-    
-    // return SOAgentModule.runScript(https, conf, content);
-    // return SOAgentModule.attachFileToRecord(https, conf, JSON.stringify(contentObject));
+    // return SOAgentModule.attachFileToRecord(https, conf, content);
   }
 
   attachFileToRecordB64(docId, filePath) {

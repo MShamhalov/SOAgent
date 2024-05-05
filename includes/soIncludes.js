@@ -2,9 +2,9 @@ export default class SimpleOneIncludes {
   constructor() {}
   /**
    * Used for getRecordUrlBySysId(objSysId)
-   * @param {*} instance 
-   * @param {*} objSysId 
-   * @returns 
+   * @param {*} instance
+   * @param {*} objSysId
+   * @returns
    */
   IGetRecordUrlBySysId(instance, objSysId) {
     const scriptStr = `const recordID = '${objSysId}';
@@ -43,9 +43,9 @@ export default class SimpleOneIncludes {
 
   /**
    * Used for getDocId()
-   * @param {*} tableName 
-   * @param {*} recordId 
-   * @returns 
+   * @param {*} tableName
+   * @param {*} recordId
+   * @returns
    */
   IGetDocID(tableName, recordId) {
     const scriptStr = `const tableId = getTableId('${tableName}');
@@ -63,17 +63,39 @@ export default class SimpleOneIncludes {
   }
 
   ICreateAttachSurrogateRecord() {
-    const scriptStr = `const insFields = new Map([
-      ['file_name', 'default'],
-      ['mime_content_type', 'application/octet-stream'],
-    ]);
-    
-    const surrogate = new SimpleRecord('sys_attachment');
-    surrogate.initialize();
-    for (const [key, value] of insFields) {
-        surrogate.setValue(key, value);
-    }
-    const surrogateId = surrogate.insert()
-    +surrogateId ? ss.debug(surrogateId) : ss.error(surrogate.getErrors());`;
+    const scriptStr = `(async function () {
+      const insFields = new Map([
+            ['file_name', 'default'],
+            ['mime_content_type', 'application/octet-stream'],
+          ]);
+          
+          const surrogate = new SimpleRecord('sys_attachment');
+          surrogate.initialize();
+          for (const [key, value] of insFields) {
+              surrogate.setValue(key, value);
+          }
+          const surrogateId = await surrogate.insert()
+        return +surrogateId ? ss.debug(surrogateId) : ss.error(surrogate.getErrors());  
+      } ());`;
+      
+      return JSON.stringify({"script": scriptStr});
+  }
+  
+  ICreateAttachRecord(surrogateRecordId) {
+    const scriptStr = `(async function () {
+      const insFields = new Map([
+            ['file_name', 'default'],
+            ['mime_content_type', 'application/octet-stream'],
+          ]);
+          
+          const surrogate = new SimpleRecord('sys_attachment');
+          surrogate.initialize();
+          for (const [key, value] of insFields) {
+              surrogate.setValue(key, value);
+          }
+          const surrogateId = await surrogate.insert()
+        return +surrogateId ? ss.debug(surrogateId) : ss.error(surrogate.getErrors());  
+      } ());`;
+      return scriptStr;
   }
 }
