@@ -115,9 +115,9 @@ console.log(await sa.getRecordUrlBySysId('170609176898389495'))
 ```
 const queryString = 'state!=10^subjectLIKEне работает';
 const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
-getRecordsByQuery.result.forEach(async (current) => {
+for (current of getRecordsByQuery.result){
   const readedRecordString = await sa.readRecord('itsm_incident', current);
   const number = sa.getValue(readedRecordString, 'number');
   console.log(number);
-});
+}
 ```
