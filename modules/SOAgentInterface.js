@@ -58,7 +58,24 @@ export default class SimpleOneAgentInterface {
     return SOAgentModule.runScript(https, conf, content);
   }
 
-  attachFileToRecord(docId, filePath) {
+  getRecordUrlBySysId(objSysId) {
+    const scriptStr = SOAgentIncludes.IGetRecordUrlBySysId(conf.instance, objSysId);
+    const content = JSON.stringify({"script": scriptStr});
+
+    return SOAgentModule.runScript(https, conf, content);
+  }
+
+  attachFileToRecord(filePath) {
+    const scriptStr = SOAgentIncludes.ICreateAttachSurrogateRecord();
+    const content = JSON.stringify({"script": scriptStr});
+
+    return(content);
+    
+    // return SOAgentModule.runScript(https, conf, content);
+    // return SOAgentModule.attachFileToRecord(https, conf, JSON.stringify(contentObject));
+  }
+
+  attachFileToRecordB64(docId, filePath) {
     const fileName = path.basename(filePath);
     const fileExt = path.extname(filePath);
     const mimeType = this.getMIMEtype(fileExt);
@@ -71,14 +88,7 @@ export default class SimpleOneAgentInterface {
       fileContent: fileContent,
     };
 
-    return SOAgentModule.attachFileToRecord(https, conf, JSON.stringify(contentObject));
-  }
-
-  getRecordUrlBySysId(objSysId) {
-    const scriptStr = SOAgentIncludes.IGetRecordUrlBySysId(conf.instance, objSysId);
-    const content = JSON.stringify({"script": scriptStr});
-
-    return SOAgentModule.runScript(https, conf, content);
+    return SOAgentModule.attachFileToRecordB64(https, conf, JSON.stringify(contentObject));
   }
 
   getMIMEtype(extension) {
@@ -161,8 +171,7 @@ export default class SimpleOneAgentInterface {
       ['.3g2', 'video/3gpp2'],
       ['.7z', 'application/x-7z-compressed'],
     ]);
-    const MIMECandidate = mimeTypes.get(extension);
 
-    return MIMECandidate ? MIMECandidate : 'application/octet-stream';
+    return mimeTypes.get(extension) || 'application/octet-stream';
   }
 }

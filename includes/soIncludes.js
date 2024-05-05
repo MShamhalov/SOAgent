@@ -1,5 +1,11 @@
 export default class SimpleOneIncludes {
   constructor() {}
+  /**
+   * Used for getRecordUrlBySysId(objSysId)
+   * @param {*} instance 
+   * @param {*} objSysId 
+   * @returns 
+   */
   IGetRecordUrlBySysId(instance, objSysId) {
     const scriptStr = `const recordID = '${objSysId}';
     const tables = new SimpleRecord('sys_db_table');
@@ -35,6 +41,12 @@ export default class SimpleOneIncludes {
     return scriptStr;
   }
 
+  /**
+   * Used for getDocId()
+   * @param {*} tableName 
+   * @param {*} recordId 
+   * @returns 
+   */
   IGetDocID(tableName, recordId) {
     const scriptStr = `const tableId = getTableId('${tableName}');
     const docId = ss.getDocIdByIds(tableId, ${recordId});
@@ -48,5 +60,20 @@ export default class SimpleOneIncludes {
     }`;
 
     return scriptStr;
+  }
+
+  ICreateAttachSurrogateRecord() {
+    const scriptStr = `const insFields = new Map([
+      ['file_name', 'default'],
+      ['mime_content_type', 'application/octet-stream'],
+    ]);
+    
+    const surrogate = new SimpleRecord('sys_attachment');
+    surrogate.initialize();
+    for (const [key, value] of insFields) {
+        surrogate.setValue(key, value);
+    }
+    const surrogateId = surrogate.insert()
+    +surrogateId ? ss.debug(surrogateId) : ss.error(surrogate.getErrors());`;
   }
 }

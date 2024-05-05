@@ -22,8 +22,8 @@ export default class SimpleOneAgent {
   }
 
   getPathAndMethod(tableName = null, sysId = null, action) {
-    const stdActions = ['insert', 'read', 'update', 'delete', 'runScript'];
-    const cstActions = ['query', 'docid', 'attachFile'];
+    const stdActions = ['insert', 'read', 'update', 'delete', 'runScript', 'attachFile'];
+    const cstActions = ['query', 'docid', 'attachB64File'];
     let path = '';
     let method = '';
 
@@ -50,7 +50,12 @@ export default class SimpleOneAgent {
           break;
 
         case 'runScript':
-          path = `/v1/admin-script/run`;
+          path = '/v1/admin-script/run';
+          method = 'POST';
+          break;
+
+        case 'attachFile':
+          path = `/v1/attachments/upload/${tableName}/${sysId}`;
           method = 'POST';
           break;
       }
@@ -66,7 +71,7 @@ export default class SimpleOneAgent {
           method = 'GET';
           break;
 
-        case 'attachFile':
+        case 'attachB64File':
           path = `/v1/api/itsm_itsm/soagent/attach_file`;
           method = 'POST';
           break;
@@ -212,8 +217,8 @@ export default class SimpleOneAgent {
     return functionResult;
   }
 
-  async attachFileToRecord(https, conf, content) {
-    const options = this.getOptions(conf, null, null, 'attachFile');
+  async attachFileToRecordB64(https, conf, content) {
+    const options = this.getOptions(conf, null, null, 'attachB64File');
     const functionResult = new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
@@ -235,6 +240,12 @@ export default class SimpleOneAgent {
     });
 
     return functionResult;
+  }
+
+  async attachFileToRecord(https, conf, content) {
+    const options = this.getOptions(conf, tableName, sysId, 'attachFile');
+
+    return options;
   }
 
   async runScript(https, conf, scriptContent) {
