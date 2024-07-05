@@ -1,4 +1,3 @@
-const confFilePath = './SOAgent.conf';
 // import http from 'http';
 import https from 'https';
 import fs from 'fs';
@@ -7,12 +6,13 @@ import mainModule from './SOAgentModule.js';
 import soIncludes from '../includes/soIncludes.js';
 
 const SOAgentModule = new mainModule();
-const conf = SOAgentModule.getConfiguration(fs, confFilePath);
+let conf;
 const SOAgentIncludes =  new soIncludes();
 
 export default class SimpleOneAgentInterface {
-  constructor() {}
-
+  constructor(confFilePath) {
+    conf = SOAgentModule.getConfiguration(fs, confFilePath);
+  }
 
   insertRecord(tableName, obj) {
     return SOAgentModule.insertRecord(https, conf, tableName, obj);
@@ -20,6 +20,10 @@ export default class SimpleOneAgentInterface {
 
   readRecord(tableName, sysId) {
     return SOAgentModule.readRecord(https, conf, tableName, sysId);
+  }
+  
+  queryRecord(tableName, queryParams) {
+    return SOAgentModule.queryRecord(https, conf, tableName, queryParams);
   }
 
   updateRecord(tableName, sysId, obj) {
@@ -29,13 +33,7 @@ export default class SimpleOneAgentInterface {
   deleteRecord(tableName, sysId) {
     return SOAgentModule.deleteRecord(https, conf, tableName, sysId);
   }
-
-  queryRecord(tableName, queryString) {
-    const jsonQueryString = JSON.stringify({ condition: queryString });
-
-    return SOAgentModule.queryRecord(https, conf, tableName, jsonQueryString);
-  }
-  
+ 
   runScript(filePath){
     const content = JSON.stringify({"script": fs.readFileSync(filePath, "utf8")});
     

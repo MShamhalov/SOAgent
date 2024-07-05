@@ -51,6 +51,43 @@ console.log('sys_id: ' + sa.getValue(readedRecordString, 'sys_id'));
 console.log('namber: ' + sa.getValue(readedRecordString, 'number'));
 console.log('subject: ' + sa.getValue(readedRecordString, 'subject'));
 ```
+### Запрос данных из таблицы
+Запрос всех записей удовлетворяющих условию записей и вывод значения конкретного поля из этих записей
+```
+  const queryParams = new Map([
+    ['sysparm_query', 'state!=10^subjectLIKEне работает'],
+    ['sysparm_display_value', '0'],
+    ['sysparm_exclude_reference_link', '0'],
+    ['sysparm_fields', 'number'],
+    ['sysparm_view', ''],
+    ['sysparm_limit', '20'],
+    ['sysparm_page', '1']
+  ]);
+  
+  const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryParams);
+  console.log(getRecordsByQuery.data);
+```
+где:
+- sysparm_query - Закодированная строка запроса, которая используется для фильтрации результатов. Параметр поддерживает использование dot-walking.
+Пример значения: active=1.
+Для создания сложного запроса, используйте системные названия операторов и строку условий.
+- sysparm_display_value - Флаг, определяющий тип возвращаемых данных. Валидные значения:
+1 – возвращает отображаемое значение поля.
+0 – возвращает значение поля из базы данных.
+Значение по умолчанию: 0.
+- sysparm_exclude_reference_link - 1 – исключить ссылки Table API для ссылочных полей.
+0 – включить ссылки Table API для ссылочных полей.
+Значение по умолчанию: 0.
+- sysparm_fields - Список полей, разделенных запятой, которые должны вернуться в ответе. Параметр поддерживает использование dot-walking.
+Dot-walking не работает для таблицы Запланированные задания (sys_schedule_job), ее дочерних таблиц и таблицы Индикаторы (sys_indicator), так как после создания запись проходит обработку и не сразу появляется в базе данных.
+Пример значения: number,caller.phone
+- sysparm_view - Представление формы, поля которого должны вернуться в ответе. Обратите внимание, что этот параметр может быть переопределен параметром sysparm_fields.
+Из набора колонок представления, указанного в sysparm_view, выводятся только те, что указаны в sysparm_fields. Если указаны поля в sysparm_fields, которых нет в выбранном представлении, оно не выведется.
+Если параметр не задан, в ответе на запрос возвращаются значения всех колонок таблицы.
+- sysparm_limit - Максимальное количество результатов, возвращаемое запросом.
+Значение по умолчанию: 20.
+- sysparm_page - Номер страницы, с которой начнется чтение. Например, если значение параметра sysparm_limit – 40, а у sysparm_page значение равно двум, то ответ будет включать записи 21–60..
+Значение по умолчанию: 1.
 
 ### Обновление объекта 
 ```
@@ -74,14 +111,6 @@ console.log(deleteRecordString);
 const filePath = './SimpleOne/SOAgent/attachs/script1.js';
 const result = await sa.runScript(filePath);
 console.log(result);
-```
-
-### Запрос данных из таблицы*
-Запрос всех записей удовлетворяющих условию (custom) записей и вывод значения конкретного поля из этих записей
-```
-const queryString = 'state!=10^subjectLIKEне работает';
-const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
-console.log(getRecordsByQuery);
 ```
 
 ### Получение DocId из известных TableName и RecordId*
