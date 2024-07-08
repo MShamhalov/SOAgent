@@ -16,7 +16,7 @@
 ### Скелет скрипта
 ```
 import SOAgent from './modules/SOAgentInterface.js';
-const sa = new SOAgent();
+const sa = new SOAgent('./SOAgent.conf');
 
 (async function () {
   // место для вашего кода
