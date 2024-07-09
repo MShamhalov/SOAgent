@@ -37,7 +37,7 @@ export default class SimpleOneIncludes {
 
   IGetDocID(tableName, recordId) {
     const scriptStr = `const tableId = getTableId('${tableName}');
-    const docId = ss.getDocIdByIds(tableId, ${recordId});
+    const docId = ss.getDocIdByIds(tableId, '${recordId}');
     ss.debug(docId);
 
     function getTableId(table_name) {
