@@ -49,11 +49,12 @@ export default class SimpleOneAgentInterface {
     return String(result);
   }
 
-  getDocId(tableName, sysId) {
+  async getDocId(tableName, sysId) {
     const scriptStr = SOAgentIncludes.IGetDocID(tableName, sysId);
-    const content = JSON.stringify({"script": scriptStr});
-    
-    return SOAgentModule.runScript(https, conf, content);
+    const content = JSON.stringify({ script: scriptStr });
+    const resultText = await SOAgentModule.runScript(https, conf, content);
+
+    return _resultFilter(resultText);
   }
 
   attachFileToRecord(docId, filePath) {
@@ -162,5 +163,14 @@ export default class SimpleOneAgentInterface {
     const MIMECandidate = mimeTypes.get(extension);
 
     return MIMECandidate ? MIMECandidate : 'application/octet-stream';
+  }
+}
+
+function _resultFilter(text) {
+  const forbidden_words = ['Debug: ', 'Отладка: '];
+  for (const current_word of forbidden_words) {
+    if (text.includes(current_word)) {
+      return text.replace(current_word, '');
+    }
   }
 }
