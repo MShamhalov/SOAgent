@@ -15,15 +15,23 @@
 
 ### Скелет скрипта
 ```
-import SOAgent from './modules/SOAgentInterface.js';
-const sa = new SOAgent('./SOAgent.conf');
+import SOAgent from '../modules/SOAgentInterface.js';
+
+const confFilePath = './SOAgent.conf';
+const sa = new SOAgent(confFilePath);
 
 (async function () {
   // место для вашего кода
 
 })();
 ```
- 
+
+### Получение сессионного токена пользователя
+```
+  const token = await sa.getUserToken();
+  sa.setTokenToConfig(confFilePath, token);
+```
+
 ### Добавление объекта
 Задаем объект, ключами в котором выступают названия полей, а значениями - значения которые будут помещены
 и добавляем запись в таблицу itsm_incident
@@ -51,6 +59,7 @@ console.log('sys_id: ' + sa.getValue(readedRecordString, 'sys_id'));
 console.log('namber: ' + sa.getValue(readedRecordString, 'number'));
 console.log('subject: ' + sa.getValue(readedRecordString, 'subject'));
 ```
+
 ### Запрос данных из таблицы
 Запрос всех записей удовлетворяющих условию записей и вывод значения конкретного поля из этих записей
 ```

@@ -7,11 +7,27 @@ import soIncludes from '../includes/soIncludes.js';
 
 const SOAgentModule = new mainModule();
 let conf;
-const SOAgentIncludes =  new soIncludes();
+const SOAgentIncludes = new soIncludes();
 
 export default class SimpleOneAgentInterface {
   constructor(confFilePath) {
     conf = SOAgentModule.getConfiguration(fs, confFilePath);
+  }
+
+  async getUserToken() {
+    const answer = await SOAgentModule.getUserToken(https, conf);
+
+    return JSON.parse(answer).data.auth_key;
+  }
+
+  setTokenToConfig(confFilePath, token) {
+    const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+    const data = JSON.parse(RAWdata);
+    data.token = token;
+
+    fs.writeFile(confFilePath, JSON.stringify(data, null, 2), (err) => {
+      if (err) console.error(err);
+    });
   }
 
   insertRecord(tableName, obj) {
@@ -21,7 +37,7 @@ export default class SimpleOneAgentInterface {
   readRecord(tableName, sysId) {
     return SOAgentModule.readRecord(https, conf, tableName, sysId);
   }
-  
+
   queryRecord(tableName, queryParams) {
     return SOAgentModule.queryRecord(https, conf, tableName, queryParams);
   }
@@ -33,15 +49,15 @@ export default class SimpleOneAgentInterface {
   deleteRecord(tableName, sysId) {
     return SOAgentModule.deleteRecord(https, conf, tableName, sysId);
   }
- 
-  runScript(filePath){
-    const content = JSON.stringify({"script": fs.readFileSync(filePath, "utf8")});
-    
+
+  runScript(filePath) {
+    const content = JSON.stringify({ script: fs.readFileSync(filePath, 'utf8') });
+
     return SOAgentModule.runScript(https, conf, content);
   }
 
   //---
-  
+
   getValue(resultString, fieldName) {
     const data = JSON.parse(resultString).data[0];
     const result = typeof data[fieldName] === 'object' ? data[fieldName].value : data[fieldName];
@@ -75,7 +91,7 @@ export default class SimpleOneAgentInterface {
 
   getRecordUrlBySysId(objSysId) {
     const scriptStr = SOAgentIncludes.IGetRecordUrlBySysId(conf.instance, objSysId);
-    const content = JSON.stringify({"script": scriptStr});
+    const content = JSON.stringify({ script: scriptStr });
 
     return SOAgentModule.runScript(https, conf, content);
   }
