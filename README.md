@@ -18,7 +18,7 @@
 - Логин
 - Пароль
 
-```
+```json
 {
   "protocol": "https",
   "instance": "instance.simpleone.ru",
