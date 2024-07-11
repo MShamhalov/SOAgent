@@ -23,7 +23,7 @@ export default class SimpleOneAgentInterface {
   setTokenToConfig(confFilePath, token) {
     const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
     const data = JSON.parse(RAWdata);
-    data.token = token;
+    data.token = 'Bearer ' + token;
 
     fs.writeFile(confFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) console.error(err);
