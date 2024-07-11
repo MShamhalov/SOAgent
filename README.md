@@ -164,15 +164,3 @@ console.log(attachId);
 ```js
 console.log(await sa.getRecordUrlBySysId('170609176898389495'))
 ```
-
-### Примеры использования
-1. Запрос из таблицы всех записей удовлетворяющих условию и вытягивание номера запроса из каждой записи.
-```js
-const queryString = 'state!=10^subjectLIKEне работает';
-const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
-for (current of getRecordsByQuery.result){
-  const readedRecordString = await sa.readRecord('itsm_incident', current);
-  const number = sa.getValue(readedRecordString, 'number');
-  console.log(number);
-}
-```
