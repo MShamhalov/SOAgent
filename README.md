@@ -14,7 +14,7 @@
 Указать в том же файле адрес инстанса.
 
 ### Скелет скрипта
-```
+```js
 import SOAgent from '../modules/SOAgentInterface.js';
 
 const confFilePath = './SOAgent.conf';
@@ -27,7 +27,7 @@ const sa = new SOAgent(confFilePath);
 ```
 
 ### Получение сессионного токена пользователя
-```
+```js
   const token = await sa.getUserToken();
   sa.setTokenToConfig(confFilePath, token);
 ```
@@ -35,7 +35,7 @@ const sa = new SOAgent(confFilePath);
 ### Добавление объекта
 Задаем объект, ключами в котором выступают названия полей, а значениями - значения которые будут помещены
 и добавляем запись в таблицу itsm_incident
-```
+```js
 const insertObject = JSON.stringify({
   subject: 'Не работает беспроводная клавиатура Roxy M11',
 });
@@ -43,7 +43,7 @@ const insertedRecordString = await sa.insertRecord('itsm_incident', insertObject
 ```
 
 Если требуется получить какие-то значения из только что созданной записи, используем метод getValue()
-```
+```js
 const recordId = sa.getValue(insertedRecordString, 'sys_id');
 const recordNumber = sa.getValue(insertedRecordString, 'number');
 const recordSubject = sa.getValue(insertedRecordString, 'subject');
@@ -51,7 +51,7 @@ console.log(recordId, recordNumber, recordSubject);
 ```
 
 ### Чтение объекта
-```
+```js
 const recordId = '151195398492734076';
 const readedRecordString = await sa.readRecord('itsm_incident', recordId);
 
@@ -62,7 +62,7 @@ console.log('subject: ' + sa.getValue(readedRecordString, 'subject'));
 
 ### Запрос данных из таблицы
 Запрос всех записей удовлетворяющих условию записей и вывод значения конкретного поля из этих записей
-```
+```js
   const queryParams = new Map([
     ['sysparm_query', 'state!=10^subjectLIKEне работает'],
     ['sysparm_display_value', '0'],
@@ -99,7 +99,7 @@ Dot-walking не работает для таблицы Запланирован
 Значение по умолчанию: 1.
 
 ### Обновление объекта 
-```
+```js
 const recordId = '151195398492734076';
 const updateObject = JSON.stringify({
   subject: 'Не работает беспроводная мышь Proxy M1',
@@ -109,21 +109,21 @@ console.log(updatedRecordString);
 ```
 
 ### Удаление объекта
-```
+```js
 const recordId = '151195398492734076';
 const deleteRecordString = await sa.deleteRecord('itsm_incident', recordId);
 console.log(deleteRecordString);
 ```
 
 ### Запуск скрипта из локального файла - на инстансе SimpleOne и получение результата
-```
+```js
 const filePath = './SimpleOne/SOAgent/attachs/script1.js';
 const result = await sa.runScript(filePath);
 console.log(result);
 ```
 
 ### Получение DocId из известных TableName и RecordId*
-```
+```js
 const tableName = 'itsm_incident';
 const sysId = '171195597496013110';
 const DocId = await sa.getDocIdValue(tableName, sysId);
@@ -132,7 +132,7 @@ console.log(DocId);
 
 ### Загрузка файла на инстанс SimpleOne*
 Есть ограничения на размер файла который может быть загружен таким образом (ок. 65МБ).
-```
+```js
 const tableName = 'itsm_incident';
 const sysId = '171195597496013110';
 const DocId = await sa.getDocIdValue(tableName, sysId);
@@ -144,13 +144,13 @@ console.log(attachId);
 \* Осуществляется только при установке дополнительного sop-файла 'ShMG SOAgent RestAPI Pack.sop' для приложения ITSM
 
 ### Поиск сущности по известному sys_id
-```
+```js
 console.log(await sa.getRecordUrlBySysId('170609176898389495'))
 ```
 
 ### Примеры использования
 1. Запрос из таблицы всех записей удовлетворяющих условию и вытягивание номера запроса из каждой записи.
-```
+```js
 const queryString = 'state!=10^subjectLIKEне работает';
 const getRecordsByQuery = await sa.queryRecord('itsm_incident', queryString);
 for (current of getRecordsByQuery.result){
