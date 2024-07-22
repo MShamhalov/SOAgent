@@ -14,20 +14,38 @@ export default class SimpleOneAgentInterface {
     conf = SOAgentModule.getConfiguration(fs, confFilePath);
   }
 
-  async getUserToken() {
-    const answer = await SOAgentModule.getUserToken(https, conf);
-
-    return JSON.parse(answer).data.auth_key;
+  async getUserToken(auth_type) {
+    const answer = await SOAgentModule.getUserToken(https, conf, auth_type);
+    try {
+      return JSON.parse(answer).data.auth_key;
+    } catch {
+      console.error('Invalid username or password!');
+    }
   }
 
   setTokenToConfig(confFilePath, token) {
-    const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
-    const data = JSON.parse(RAWdata);
+    let data = {};
+    let RAWdata = '';
+    try {
+      RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+    } catch {
+      console.error(`Error! File ${confFilePath} not found!`);
+      return;
+    }
+    data = JSON.parse(RAWdata);
     data.token = 'Bearer ' + token;
-
     fs.writeFile(confFilePath, JSON.stringify(data, null, 2), (err) => {
-      if (err) console.error(err);
+      if (err) {
+        console.error("Error can't write file!");
+        console.error(err);
+      }
     });
+  }
+
+  async refreshToken(confFilePath, auth_type) {
+    const token = await this.getUserToken();
+    if (!token) return;
+    this.setTokenToConfig(confFilePath, token)
   }
 
   insertRecord(tableName, obj) {

@@ -7,10 +7,10 @@ export default class SimpleOneAgent {
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
     const options = this.getPathAndMethod(tableName, sysId, action);
-    console.log('options: ' + options);
+    // console.log('options: ' + options);
 
-    if  (action === 'query') {
-        options.path = this.addParamsToPath(options.path, queryParams);
+    if (action === 'query') {
+      options.path = this.addParamsToPath(options.path, queryParams);
     }
 
     return {
@@ -39,16 +39,21 @@ export default class SimpleOneAgent {
   }
 
   getPathAndMethod(tableName = null, sysId = null, action) {
-    const stdActions = ['auth', 'insert', 'read', 'query', 'update', 'delete', 'runScript'];
+    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript'];
     const cstActions = ['docid', 'attachFile'];
     let path = '';
     let method = '';
 
     if (stdActions.includes(action)) {
       switch (action) {
-        case 'auth': {
+        case 'auth_basic': {
           path = `/v1/auth/login`;
-          // path = `/v1/auth/side-door`;
+          method = 'POST';
+          break;
+        }
+
+        case 'auth_sso': {
+          path = `/v1/auth/side-door`;
           method = 'POST';
           break;
         }
@@ -108,8 +113,8 @@ export default class SimpleOneAgent {
     return { method, path };
   }
 
-  async getUserToken(https, conf) {
-    const options = this.getOptions(conf, null, null, 'auth');
+  async getUserToken(https, conf, auth = 'auth_sso') {
+    const options = this.getOptions(conf, null, null, auth);
     delete options.headers.Authorization;
     const obj = `{"username": "${conf.login}", "password": "${conf.password}"}`;
     const functionResult = new Promise((resolve, reject) => {
@@ -125,13 +130,12 @@ export default class SimpleOneAgent {
           });
       });
       request.on('error', (error) => {
-        reject(error);
         request.end();
+        console.error('Network error! Please check connection or instance domain');
       });
       request.write(obj);
       request.end();
     });
-
 
     return functionResult;
   }

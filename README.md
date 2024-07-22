@@ -45,9 +45,15 @@ const sa = new SOAgent(confFilePath);
 
 ### Получение сессионного токена пользователя
 ```js
-  const token = await sa.getUserToken();
+  await sa.refreshToken(confFilePath, 'auth_sso');
+```
+Получение и запись сессионного токена одной строкой (объединяет результат двух методов  - getUserToken() и setTokenToConfig())
+
+```js
+  const token = await sa.getUserToken('auth_basic');
   sa.setTokenToConfig(confFilePath, token);
 ```
+getUserToken имеет один необязательный строковый аргумент со значенями 'auth_basic' либо 'auth_sso' в зависимости от того, посредством какой из страниц производится аутентификация - /auth/login (auth_basic) либо /auth/side-door (auth_sso), по умолчанию используется страница /auth/side-door.
 
 ### Добавление объекта
 Задаем объект, ключами в котором выступают названия полей, а значениями - значения которые будут помещены
