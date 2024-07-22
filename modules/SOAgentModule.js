@@ -7,17 +7,10 @@ export default class SimpleOneAgent {
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
     const options = this.getPathAndMethod(tableName, sysId, action);
-    switch (action) {
-      case 'auth': {
-        
-        break;
-      }
+    console.log('options: ' + options);
 
-      case 'query': {
+    if  (action === 'query') {
         options.path = this.addParamsToPath(options.path, queryParams);
-        break;
-      }
-
     }
 
     return {
@@ -190,7 +183,6 @@ export default class SimpleOneAgent {
 
   async queryRecord(https, conf, tableName, queryParams) {
     const options = this.getOptions(conf, tableName, null, 'query', queryParams);
-    //console.log(options)
     const functionResult = new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
