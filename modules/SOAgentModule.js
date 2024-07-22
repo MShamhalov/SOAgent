@@ -35,7 +35,7 @@ export default class SimpleOneAgent {
       if (i < queryParams.size) resultStr += '&';
     }
 
-    return rawPath + '?' + encodeURI(resultStr);
+    return rawPath + '?' + encodeURI(decodeURIComponent(resultStr));
   }
 
   getPathAndMethod(tableName = null, sysId = null, action) {

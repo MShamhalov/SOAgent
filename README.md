@@ -79,7 +79,7 @@ const recordId = '151195398492734076';
 const readedRecordString = await sa.readRecord('itsm_incident', recordId);
 
 console.log('sys_id: ' + sa.getValue(readedRecordString, 'sys_id'));
-console.log('namber: ' + sa.getValue(readedRecordString, 'number'));
+console.log('number: ' + sa.getValue(readedRecordString, 'number'));
 console.log('subject: ' + sa.getValue(readedRecordString, 'subject'));
 ```
 
@@ -121,6 +121,8 @@ Dot-walking не работает для таблицы Запланирован
 - sysparm_page - Номер страницы, с которой начнется чтение. Например, если значение параметра sysparm_limit – 40, а у sysparm_page значение равно двум, то ответ будет включать записи 21–60..
 Значение по умолчанию: 1.
 
+Ни один из описанных параметров не является обязательным и может быть пропущен
+
 ### Обновление объекта 
 ```js
 const recordId = '151195398492734076';
@@ -145,7 +147,7 @@ const result = await sa.runScript(filePath);
 console.log(result);
 ```
 
-### Получение DocId из известных TableName и RecordId*
+### Получение DocId из известных TableName и RecordId
 ```js
 const tableName = 'itsm_incident';
 const sysId = '171195597496013110';
