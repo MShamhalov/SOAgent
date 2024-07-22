@@ -55,6 +55,7 @@ export default class SimpleOneAgent {
       switch (action) {
         case 'auth': {
           path = `/v1/auth/login`;
+          // path = `/v1/auth/side-door`;
           method = 'POST';
           break;
         }
