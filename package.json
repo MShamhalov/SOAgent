@@ -5,7 +5,13 @@
   "scripts": {
     "test": "jest"
   },
-  "dependencies": {
+  "jest": {
+    "testMatch": [
+      "**/tests/**/*.[jt]s?(x)",
+      "**/?(*.)+(test).[jt]s?(x)"
+    ]
+  },
+  "devDependencies": {
     "jest": "^29.7.0"
   }
 }

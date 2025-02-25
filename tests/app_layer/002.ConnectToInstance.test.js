@@ -1,0 +1,45 @@
+const https = require('https');
+const fs = require('fs');
+const SOAgent = require('../../src/index.js');
+
+const confFilePath = './tests/.env';
+
+var response;
+beforeAll(async () => {
+  RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+  const config = JSON.parse(RAWdata);
+
+  const options = {
+    hostname: config.instance,
+    port: 443,
+    path: '/',
+    method: 'GET',
+  };
+  
+  response = await makeRequest(options);
+});
+
+
+test('Host return status 200', async () => {
+  expect(response.statusCode).toBe(200);
+});
+
+test ('Host is instance of Simplene', async () => {
+  const regex = /<meta\s+name="application-name"\s+content="([^"]+)"\s*\/?>/;
+  const match = regex.exec(response.body);
+  expect(match[1]).toBe('SimpleOne');
+})
+
+function makeRequest(options) {
+  return new Promise((resolve, reject) => {
+    const request = https.request(options, (response) => {
+      let result = '';
+      response.on('data', (chunk) => result += chunk);
+      response.on('end', () => resolve({ statusCode: response.statusCode, body: result }));
+      response.on('error', reject);
+    });
+
+    request.on('error', reject);
+    request.end();
+  });
+}

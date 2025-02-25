@@ -1,21 +1,19 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const coreMethods = require('../src/core_layer/SOAgentCore.js');
-// import mainModule from './SOAgentModule.js';
+const SOAgentCore = require('../src/core_layer/SOAgentCore.js');
 // import soIncludes from '../includes/soIncludes.js';
 
-const SOAgentCoreMethods = new coreMethods.SOAgentCoreMethods();
-let conf;
+const core = new SOAgentCore.SOAgentCoreMethods();
 // const SOAgentIncludes = new soIncludes();
 
+var conf;
 class SimpleOneAgentInterface {
   constructor(confFilePath) {
-    conf = SOAgentCoreMethods.getConfiguration(fs, confFilePath);
+    conf = core.getConfiguration(fs, confFilePath);
   }
-/*
   async getUserToken(auth_type) {
-    const answer = await SOAgentModule.getUserToken(https, conf, auth_type);
+    const answer = await core.getUserToken(https, conf, auth_type);
     try {
       return JSON.parse(answer).data.auth_key;
     } catch {
@@ -42,12 +40,13 @@ class SimpleOneAgentInterface {
     });
   }
 
+
   async refreshToken(confFilePath, auth_type) {
     const token = await this.getUserToken();
     if (!token) return;
     this.setTokenToConfig(confFilePath, token)
   }
-
+/*
   insertRecord(tableName, obj) {
     return SOAgentModule.insertRecord(https, conf, tableName, obj);
   }
@@ -210,4 +209,4 @@ function _resultFilter(text) {
 */
 }
 
-module.exports = {SimpleOneAgentInterface};
+module.exports = { SimpleOneAgentInterface };
