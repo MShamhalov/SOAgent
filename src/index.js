@@ -1,19 +1,19 @@
-// import http from 'http';
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import mainModule from './SOAgentModule.js';
-import soIncludes from '../includes/soIncludes.js';
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const coreMethods = require('../src/core_layer/SOAgentCore.js');
+// import mainModule from './SOAgentModule.js';
+// import soIncludes from '../includes/soIncludes.js';
 
-const SOAgentModule = new mainModule();
+const SOAgentCoreMethods = new coreMethods.SOAgentCoreMethods();
 let conf;
-const SOAgentIncludes = new soIncludes();
+// const SOAgentIncludes = new soIncludes();
 
-export default class SimpleOneAgentInterface {
+class SimpleOneAgentInterface {
   constructor(confFilePath) {
-    conf = SOAgentModule.getConfiguration(fs, confFilePath);
+    conf = SOAgentCoreMethods.getConfiguration(fs, confFilePath);
   }
-
+/*
   async getUserToken(auth_type) {
     const answer = await SOAgentModule.getUserToken(https, conf, auth_type);
     try {
@@ -207,4 +207,7 @@ function _resultFilter(text) {
       return text.replace(current_word, '');
     }
   }
+*/
 }
+
+module.exports = {SimpleOneAgentInterface};

@@ -1,4 +1,4 @@
-export default class SimpleOneAgent {
+class SOAgentCoreMethods {
   constructor() {}
 
   getConfiguration(fs, workDir) {
@@ -7,8 +7,6 @@ export default class SimpleOneAgent {
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
     const options = this.getPathAndMethod(tableName, sysId, action);
-    // console.log('options: ' + options);
-
     if (action === 'query') {
       options.path = this.addParamsToPath(options.path, queryParams);
     }
@@ -324,3 +322,5 @@ export default class SimpleOneAgent {
     return functionResult;
   }
 }
+
+module.exports = {SOAgentCoreMethods};

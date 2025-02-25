@@ -1,7 +1,7 @@
-import SOAgent from '../modules/SOAgentInterface.js';
+const SOAgent = require('../src/index.js');
 
-const confFilePath = './SOAgent.conf';
-const sa = new SOAgent(confFilePath);
+const confFilePath = './examples/SOAgent.conf';
+const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
 (async function () {
   // Please read ReadMeFile.md first!
