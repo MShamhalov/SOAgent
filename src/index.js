@@ -1,19 +1,15 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const SOAgentCore = require('../src/core_layer/SOAgentCore.js');
-// import soIncludes from '../includes/soIncludes.js';
-
-const core = new SOAgentCore.SOAgentCoreMethods();
-// const SOAgentIncludes = new soIncludes();
-
-var conf;
 class SimpleOneAgentInterface {
   constructor(confFilePath) {
-    conf = core.getConfiguration(fs, confFilePath);
+    this.https = require('https');
+    this.fs = require('fs');
+    this.path = require('path');
+    const SOAgentCore = require('../src/core_layer/SOAgentCore.js');
+    this.core = new SOAgentCore.SOAgentCoreMethods();
+    this.conf = this.core.getConfiguration(this.fs, confFilePath);
   }
+
   async getUserToken(auth_type) {
-    const answer = await core.getUserToken(https, conf, auth_type);
+    const answer = await this.core.getUserToken(this.https, this.conf, auth_type);
     try {
       return JSON.parse(answer).data.auth_key;
     } catch {
@@ -25,14 +21,14 @@ class SimpleOneAgentInterface {
     let data = {};
     let RAWdata = '';
     try {
-      RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+      RAWdata = this.fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
     } catch {
       console.error(`Error! File ${confFilePath} not found!`);
       return;
     }
     data = JSON.parse(RAWdata);
     data.token = 'Bearer ' + token;
-    fs.writeFileSync(confFilePath, JSON.stringify(data, null, 2), (err) => {
+    this.fs.writeFileSync(confFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.error("Error can't write file!");
         console.error(err);
@@ -56,15 +52,15 @@ class SimpleOneAgentInterface {
       console.error('Ошибка! Не верный тип');
     }
 
-    return await core.insertRecord(https, conf, tableName, result);
+    return await this.core.insertRecord(this.https, this.conf, tableName, result);
   }
 
   async readRecord(tableName, sysId) {
-    return await core.readRecord(https, conf, tableName, sysId);
+    return await this.core.readRecord(this.https, this.conf, tableName, sysId);
   }
 
   async queryRecord(tableName, queryParams) {
-    return await core.queryRecord(https, conf, tableName, queryParams);
+    return await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
   }
 
   async updateRecord(tableName, sysId, obj) {
@@ -77,19 +73,18 @@ class SimpleOneAgentInterface {
       console.error('Ошибка! Не верный тип');
     }
 
-    return await core.updateRecord(https, conf, tableName, sysId, result);
+    return await this.core.updateRecord(this.https, this.conf, tableName, sysId, result);
   }
 
   async deleteRecord(tableName, sysId) {
-    return await core.deleteRecord(https, conf, tableName, sysId);
+    return await this.core.deleteRecord(this.https, this.conf, tableName, sysId);
   }
 
   async runScript(filePath) {
-    const content = JSON.stringify({ script: fs.readFileSync(filePath, 'utf8') });
+    const content = JSON.stringify({ script: this.fs.readFileSync(filePath, 'utf8') });
 
-    return core.runScript(https, conf, content);
+    return this.core.runScript(this.https, this.conf, content);
   }
-
 
   getValue(resultString, fieldName) {
     const RAWResult = resultString;
@@ -100,7 +95,8 @@ class SimpleOneAgentInterface {
     } else {
       readyData = data;
     }
-    const result = typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
+    const result =
+      typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
 
     return String(result);
   }
