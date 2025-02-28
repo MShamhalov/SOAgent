@@ -1,9 +1,12 @@
-const SOAgent = require('../../src/index.js');
+const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
 const confFilePath = './tests/.env';
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
+const SOLogin = require('../../src/core_layer/SOLogin.js');
+const sl = new SOLogin.Login(confFilePath);
+
 beforeAll(async () => {
-  sa.refreshToken(confFilePath);
+  sl.refreshToken(confFilePath);
 });
 
 test('Insert New Record To Instance', async () => {

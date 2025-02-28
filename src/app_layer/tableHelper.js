@@ -1,6 +1,6 @@
 class SOTableHelper {
   constructor(confFilePath) {
-    const SOAgentIndex = require('../index.js');
+    const SOAgentIndex = require('../core_layer/SOAgentInterface.js');
     this.interface = new SOAgentIndex.SimpleOneAgentInterface(confFilePath);
 
     const SOAgentValidation = require('../core_layer/SOAgentValidation.js');
