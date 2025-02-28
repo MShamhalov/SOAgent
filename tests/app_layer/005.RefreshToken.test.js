@@ -1,12 +1,12 @@
-const SOAgent = require('../../src/index.js');
+const SOLogin = require('../../src/core_layer/SOLogin.js');
 const confFilePath = './tests/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const sl = new SOLogin.Login(confFilePath);
 const fs = require('fs');
 
 beforeAll(async () => {});
 
 test('Set Token To Config', async () => {
-  sa.refreshToken(confFilePath);
+  sl.refreshToken(confFilePath);
   RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);
 
