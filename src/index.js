@@ -32,7 +32,7 @@ class SimpleOneAgentInterface {
     }
     data = JSON.parse(RAWdata);
     data.token = 'Bearer ' + token;
-    fs.writeFile(confFilePath, JSON.stringify(data, null, 2), (err) => {
+    fs.writeFileSync(confFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.error("Error can't write file!");
         console.error(err);
@@ -40,52 +40,82 @@ class SimpleOneAgentInterface {
     });
   }
 
-
   async refreshToken(confFilePath, auth_type) {
     const token = await this.getUserToken();
     if (!token) return;
-    this.setTokenToConfig(confFilePath, token)
-  }
-/*
-  insertRecord(tableName, obj) {
-    return SOAgentModule.insertRecord(https, conf, tableName, obj);
+    this.setTokenToConfig(confFilePath, token);
   }
 
-  readRecord(tableName, sysId) {
-    return SOAgentModule.readRecord(https, conf, tableName, sysId);
+  async insertRecord(tableName, obj) {
+    let result;
+    if (typeof obj === 'string') {
+      result = obj;
+    } else if (typeof obj === 'object') {
+      result = JSON.stringify(obj);
+    } else {
+      console.error('Ошибка! Не верный тип');
+    }
+
+    return await core.insertRecord(https, conf, tableName, result);
   }
 
-  queryRecord(tableName, queryParams) {
-    return SOAgentModule.queryRecord(https, conf, tableName, queryParams);
+  async readRecord(tableName, sysId) {
+    return await core.readRecord(https, conf, tableName, sysId);
   }
 
-  updateRecord(tableName, sysId, obj) {
-    return SOAgentModule.updateRecord(https, conf, tableName, sysId, obj);
+  async queryRecord(tableName, queryParams) {
+    return await core.queryRecord(https, conf, tableName, queryParams);
   }
 
-  deleteRecord(tableName, sysId) {
-    return SOAgentModule.deleteRecord(https, conf, tableName, sysId);
+  async updateRecord(tableName, sysId, obj) {
+    let result;
+    if (typeof obj === 'string') {
+      result = obj;
+    } else if (typeof obj === 'object') {
+      result = JSON.stringify(obj);
+    } else {
+      console.error('Ошибка! Не верный тип');
+    }
+
+    return await core.updateRecord(https, conf, tableName, sysId, result);
   }
 
-  runScript(filePath) {
+  async deleteRecord(tableName, sysId) {
+    return await core.deleteRecord(https, conf, tableName, sysId);
+  }
+
+  async runScript(filePath) {
     const content = JSON.stringify({ script: fs.readFileSync(filePath, 'utf8') });
 
-    return SOAgentModule.runScript(https, conf, content);
+    return core.runScript(https, conf, content);
   }
 
-  //---
 
   getValue(resultString, fieldName) {
-    const data = JSON.parse(resultString).data[0];
-    const result = typeof data[fieldName] === 'object' ? data[fieldName].value : data[fieldName];
+    const RAWResult = resultString;
+    const data = JSON.parse(resultString).data;
+    let readyData;
+    if (Array.isArray(data)) {
+      readyData = data[0];
+    } else {
+      readyData = data;
+    }
+    const result = typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
 
     return String(result);
   }
 
+  getStatus(resultString) {
+    const status = JSON.parse(resultString).status;
+
+    return String(status);
+  }
+
+  /*
   async getDocId(tableName, sysId) {
     const scriptStr = SOAgentIncludes.IGetDocID(tableName, sysId);
     const content = JSON.stringify({ script: scriptStr });
-    const resultText = await SOAgentModule.runScript(https, conf, content);
+    const resultText = await core.runScript(https, conf, content);
 
     return _resultFilter(resultText);
   }
@@ -103,14 +133,14 @@ class SimpleOneAgentInterface {
       fileContent: fileContent,
     };
 
-    return SOAgentModule.attachFileToRecord(https, conf, JSON.stringify(contentObject));
+    return core.attachFileToRecord(https, conf, JSON.stringify(contentObject));
   }
 
   getRecordUrlBySysId(objSysId) {
     const scriptStr = SOAgentIncludes.IGetRecordUrlBySysId(conf.instance, objSysId);
     const content = JSON.stringify({ script: scriptStr });
 
-    return SOAgentModule.runScript(https, conf, content);
+    return core.runScript(https, conf, content);
   }
 
   getMIMEtype(extension) {

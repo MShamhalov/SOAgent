@@ -2,7 +2,8 @@ class SOAgentCoreMethods {
   constructor() {}
 
   getConfiguration(fs, workDir) {
-    return JSON.parse(fs.readFileSync(workDir));
+    const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
+    return JSON.parse(fileContent);
   }
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
@@ -193,7 +194,7 @@ class SOAgentCoreMethods {
             result += data;
           })
           .on('end', (er) => {
-            resolve(JSON.parse(result));
+            resolve(result);
             request.end();
           });
       });
@@ -252,25 +253,25 @@ class SOAgentCoreMethods {
     return functionResult;
   }
 
-  async getDocIdValue(https, conf, tableName, sysId) {
-    const options = this.getOptions(conf, tableName, sysId, 'docid');
-    const functionResult = new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            resolve(JSON.parse(result).DocId);
-            request.end();
-          });
-      });
-      request.end();
-    });
+  // async getDocIdValue(https, conf, tableName, sysId) {
+  //   const options = this.getOptions(conf, tableName, sysId, 'docid');
+  //   const functionResult = new Promise((resolve, reject) => {
+  //     const request = https.request(options, (response) => {
+  //       let result = '';
+  //       response
+  //         .on('data', (data) => {
+  //           result += data;
+  //         })
+  //         .on('end', (er) => {
+  //           resolve(JSON.parse(result).DocId);
+  //           request.end();
+  //         });
+  //     });
+  //     request.end();
+  //   });
 
-    return functionResult;
-  }
+  //   return functionResult;
+  // }
 
   async attachFileToRecord(https, conf, content) {
     const options = this.getOptions(conf, null, null, 'attachFile');
@@ -307,7 +308,7 @@ class SOAgentCoreMethods {
             result += data;
           })
           .on('end', (er) => {
-            resolve(JSON.parse(result).data.info.replace('Debug: ', ''));
+            resolve(result);
             request.end();
           });
       });
