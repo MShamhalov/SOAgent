@@ -61,6 +61,10 @@ class SimpleOneAgentInterface {
     } else {
       readyData = data;
     }
+    if (!readyData) {
+      console.log(`Ошибка, не может быть прочитано поле ${fieldName}`);
+      return;
+    }
     const result =
       typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
 
