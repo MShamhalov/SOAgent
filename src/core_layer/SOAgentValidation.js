@@ -1,6 +1,6 @@
 class Validator {
   constructor() {}
-
+  // getMissingAttributes('table', object);
   checkTableAttributes(object) {
     let result = false;
     if (
