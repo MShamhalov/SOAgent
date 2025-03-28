@@ -32,6 +32,6 @@ describe('Последовательные тесты', () => {
     expect(status).toBe('OK');
 
     const result = sa.getValue(deleteRecordString, 'description');
-    expect(result).toBe('Records successfully deleted.');
+    expect(['Records successfully deleted.', 'Записи успешно удалены.']).toContain(result);
   });
 });

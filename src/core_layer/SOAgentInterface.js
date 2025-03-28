@@ -53,7 +53,6 @@ class SimpleOneAgentInterface {
   }
 
   getValue(resultString, fieldName) {
-    const RAWResult = resultString;
     const data = JSON.parse(resultString).data;
     let readyData;
     if (Array.isArray(data)) {

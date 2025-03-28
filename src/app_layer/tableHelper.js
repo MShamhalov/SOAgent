@@ -27,51 +27,100 @@ class SOTableHelper {
     return insertRecord;
   }
 
-  async createChoiceColumn(choiceOptions, tableOptions = {}) {
-    // if (!this.validator.checkTableAttributes(options)) {
-    // }
+  async createColumns(columnOptions) {
+    if (!Array.isArray(columnOptions)) return;
 
-    // if ()
-
-    // Создание таблицы
-    if (this._isEmptyObject(tableOptions)) {
-      const tableName = `${choiceOptions.attributes.column_name}_choice_table`;
-      const tableTitle = `${choiceOptions.attributes.title} Choice Table`;
-
-      tableOptions = {
-        name: tableName,
-        title: tableTitle,
-      };
-    }
-    const table = await this.createTable(tableOptions);
-    const tableId = this.interface.getValue(table, 'sys_id');
-    const tableNameReal = this.interface.getValue(table, 'name');
-
-    // Создание поля в таблице
-    const stringColumnOptions = {
-      column_type_id: this.returnColumnTypeID('String'),
-      title: 'Name',
-      column_name: 'name',
-      table_id: tableId,
-      active: true,
-    };
-
-    const result = await this.createColumn(stringColumnOptions);
-    const column_id = this.interface.getValue(result, 'sys_id');
-
-    choiceOptions.attributes.choice_table_id = tableId;
-    choiceOptions.attributes.choice_field_id = column_id;
-
-    // Создание записей в таблице
-    for (const option of choiceOptions.options) {
-      await this.interface.insertRecord(tableNameReal, option);
+    const result = [];
+    for (const columnOption of columnOptions) {
+      result.push(await this.interface.insertRecord('sys_db_column', columnOption));
     }
 
-    choiceOptions.attributes.column_type_id = this.returnColumnTypeID('Choice');
-    const insertRecord = await this.interface.insertRecord(
-      'sys_db_column',
-      choiceOptions.attributes
-    );
+    return result;
+  }
+
+  async createReferenceColumn(options) {
+    const insertRecord = await this.interface.insertRecord('sys_db_column', options);
+    return insertRecord;
+  }
+
+  async createChoiceColumn(data) {
+    const { choiceAttributes, choiceOptions, tableAttributes = null } = data;
+    let tableId = choiceAttributes.table_id;
+    let tableNameReal;
+    if (tableAttributes) {
+      // Используем не стандартную таблицу
+      const table = await this.createTable(tableAttributes);
+      tableId = this.interface.getValue(table, 'sys_id');
+      
+
+      // Создание полей в таблице choice
+      const columnsOptions = [
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('String'),
+          column_name: 'title',
+          table_id: tableId,
+          title: 'Title',
+        },
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('String'),
+          title: 'Value',
+          column_name: 'value',
+          table_id: tableId,
+        },
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('String'),
+          title: 'Order',
+          column_name: 'order',
+          table_id: tableId,
+        },
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('String'),
+          title: 'Language',
+          column_name: 'language',
+          table_id: tableId,
+        },
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('Reference'),
+          title: 'Table',
+          column_name: 'table_id',
+          table_id: tableId,
+        },
+        {
+          active: true,
+          column_type_id: this.returnColumnTypeID('Reference'),
+          title: 'Column',
+          column_name: 'column_id',
+          table_id: tableId,
+        },
+      ];
+      await this.createColumns(columnsOptions);
+      choiceAttributes.choice_table_id = tableId;
+      choiceAttributes.choice_field_id = await this._getFieldIdBySysName(tableId, 'title');
+
+      // Создание записей в Choice таблице
+      for (const option of choiceOptions) {
+        tableNameReal = this.interface.getValue(table, 'name');
+        await this.interface.insertRecord(tableNameReal, option);
+      }
+    }
+
+    choiceAttributes.column_type_id = this.returnColumnTypeID('Choice');
+    const columnRecord = await this.interface.insertRecord('sys_db_column', choiceAttributes);
+    const columnRecordId = this.interface.getValue(columnRecord, 'sys_id');
+
+    if (!tableAttributes) {
+      for (const option of choiceOptions) {
+        option.column_id = columnRecordId;
+        option.table_id = tableId;
+        tableNameReal = 'sys_choice';
+        await this.interface.insertRecord(tableNameReal, option);
+      }
+    }
   }
 
   returnColumnTypeID(columnName) {
@@ -160,6 +209,21 @@ class SOTableHelper {
     }
 
     return result;
+  }
+
+  async _getFieldIdBySysName(table, columName) {
+    const queryParams = new Map([
+      ['sysparm_query', `table_id=${table}^column_name=${columName}`],
+      ['sysparm_fields', 'sys_id'],
+      ['sysparm_limit', '1'],
+    ]);
+
+    const getRecordsByQueryString = await this.interface.queryRecord('sys_db_column', queryParams);
+    const getRecordsByQueryObject = JSON.parse(getRecordsByQueryString);
+
+    if (getRecordsByQueryObject?.data?.[0]?.sys_id) {
+      return getRecordsByQueryObject.data[0].sys_id;
+    }
   }
 }
 

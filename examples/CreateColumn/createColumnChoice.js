@@ -9,27 +9,33 @@ const sl = new SOLogin.Login(confFilePath);
 (async function () {
   await sl.refreshToken(confFilePath);
 
-  const index = 14;
-  const tableOptions = {
-    name: `custom_choicetab${index}`,
-    title: `Custom Choice Table${index}`
+  const index = 85;
+
+  const data = {
+    choiceAttributes: {
+      title: `State${index}`,
+      column_name: `state${index}`,
+      table_id: '174074410195124077',
+      choice_type: '1',
+      active: true,
+    },
+
+    choiceOptions: [
+      { title: 'Option1', value: 'option1', language: 'en', order: "1" },
+      { title: 'Option2', value: 'option2', language: 'en', order: "2" },
+      { title: 'Option3', value: 'option3', language: 'en', order: "3" },
+      { title: 'Option4', value: 'option4', language: 'en', order: "4" },
+      { title: 'Опция1', value: 'option1', language: 'ru', order: "1" },
+      { title: 'Опция2', value: 'option2', language: 'ru', order: "2" },
+      { title: 'Опция3', value: 'option3', language: 'ru', order: "3" },
+      { title: 'Опция4', value: 'option4', language: 'ru', order: "4" },
+    ],
+
+    // tableAttributes: {
+    //   name: `custom_choicetab${index}`,
+    //   title: `Custom Choice Table${index}`,
+    // }
   };
-  const choiceOptions = {};
 
-  choiceOptions.attributes = {
-    title: `State${index}`,
-    column_name: `state${index}`,
-    table_id: '174074410195124077',
-    choice_type: '2',
-    active: true
-  };
-
-  choiceOptions.options = [
-    { name: "Option1" },
-    { name: "Option2" },
-    { name: "Option3" },
-  ]
-
-  await th.createChoiceColumn(choiceOptions, tableOptions);
-  // await th.createChoiceColumn(choiceOptions);
+  await th.createChoiceColumn(data);
 })();
