@@ -1,5 +1,5 @@
 class SOAgentCoreMethods {
-  constructor() {}
+  constructor() { }
 
   getConfiguration(fs, workDir) {
     const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
@@ -7,7 +7,7 @@ class SOAgentCoreMethods {
   }
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
-    const options = this.getPathAndMethod(tableName, sysId, action);
+    const options = this.getRequestHeader(tableName, sysId, action);
     if (action === 'query') {
       options.path = this.addParamsToPath(options.path, queryParams);
     }
@@ -18,7 +18,7 @@ class SOAgentCoreMethods {
       path: options.path,
       method: options.method,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': options.contentType,
         ForceUseSession: 'true',
         Authorization: conf.token,
       },
@@ -37,29 +37,27 @@ class SOAgentCoreMethods {
     return rawPath + '?' + encodeURI(decodeURIComponent(resultStr));
   }
 
-  getPathAndMethod(tableName = null, sysId = null, action) {
-    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript'];
+  getRequestHeader(tableName = null, sysId = null, action) {
+    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport'];
     const cstActions = ['docid', 'attachFile'];
     let path = '';
-    let method = '';
+    let method = 'POST';
+    let contentType = 'application/json';
 
     if (stdActions.includes(action)) {
       switch (action) {
         case 'auth_basic': {
           path = `/v1/auth/login`;
-          method = 'POST';
           break;
         }
 
         case 'auth_sso': {
           path = `/v1/auth/side-door`;
-          method = 'POST';
           break;
         }
 
         case 'insert': {
           path = `/rest/v1/table/${tableName}`;
-          method = 'POST';
           break;
         }
 
@@ -89,27 +87,34 @@ class SOAgentCoreMethods {
 
         case 'runScript': {
           path = `/v1/admin-script/run`;
-          method = 'POST';
           break;
         }
+
+        case 'quickImport': {
+          path = `/v1/import/json/`;
+          break;
+        }
+
       }
     } else if (cstActions.includes(action)) {
       switch (action) {
         case 'docid': {
           path = `/v1/api/itsm_itsm/soagent/docid?table_name=${tableName}&record_id=${sysId}`;
           method = 'GET';
+          contentType = 'application/json';
           break;
         }
 
         case 'attachFile': {
           path = `/v1/api/itsm_itsm/soagent/attach_file`;
           method = 'POST';
+          contentType = 'application/json';
           break;
         }
       }
     }
 
-    return { method, path };
+    return { method, path, contentType };
   }
 
   async getUserToken(https, conf, auth = 'auth_sso') {
@@ -322,6 +327,54 @@ class SOAgentCoreMethods {
 
     return functionResult;
   }
+
+  async quickImport(https, fs, conf, fileBaseName, filePath) {
+    const options = this.getOptions(conf, null, null, 'quickImport');
+    const boundary = `----WebKitFormBoundary${Math.random().toString(16).substr(2, 14)}`;
+    options.headers['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
+
+    const filePart = `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="file"; filename="${fileBaseName}"\r\n` +
+      `Content-Type: application/json\r\n\r\n`; // Изменен MIME-тип
+
+    const bodyEnd = `\r\n--${boundary}--\r\n`;
+
+    const req = https.request(options, (res) => {
+      let responseData = Buffer.alloc(0);
+      res.on('data', (chunk) => {
+        responseData = Buffer.concat([responseData, chunk]);
+      });
+
+      res.on('end', () => {
+        try {
+          const jsonResponse = JSON.parse(responseData.toString());
+          console.log('Server response:', jsonResponse);
+        } catch (e) {
+          console.log('Raw response:', responseData.toString());
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.error('Request error:', error);
+    });
+
+    req.write(filePart);
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.on('data', (chunk) => {
+      req.write(chunk);
+    });
+
+    fileStream.on('end', () => {
+      req.end(bodyEnd);
+    });
+
+    fileStream.on('error', (err) => {
+      console.error('File read error:', err);
+      req.destroy(err);
+    });
+  }
 }
 
-module.exports = {SOAgentCoreMethods};
+module.exports = { SOAgentCoreMethods };

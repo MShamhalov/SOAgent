@@ -1,7 +1,5 @@
-export default class SimpleOneIncludes {
-  constructor() {}
-  IGetRecordUrlBySysId(instance, objSysId) {
-    const scriptStr = `const recordID = '${objSysId}';
+function IGetRecordUrlBySysId(instance, objSysId) {
+  const scriptStr = `const recordID = '${objSysId}';
     const tables = new SimpleRecord('sys_db_table');
     tables.addEncodedQuery('name!=sys_re_table');
     tables.query();
@@ -32,11 +30,11 @@ export default class SimpleOneIncludes {
       return currentTable.getValue('name');
     }`;
 
-    return scriptStr;
-  }
+  return scriptStr;
+}
 
-  IGetDocID(tableName, recordId) {
-    const scriptStr = `const tableId = getTableId('${tableName}');
+function getDocId(tableName, recordId) {
+  const scriptStr = `const tableId = getTableId('${tableName}');
     const docId = ss.getDocIdByIds(tableId, '${recordId}');
     ss.debug(docId);
 
@@ -47,6 +45,12 @@ export default class SimpleOneIncludes {
       return table.getValue('sys_id');
     }`;
 
-    return scriptStr;
-  }
+  return scriptStr;
 }
+
+
+
+module.exports = {
+  IGetRecordUrlBySysId,
+  getDocId
+};

@@ -26,7 +26,7 @@ class SimpleOneAgentInterface {
   }
 
   async queryRecord(tableName, queryParams) {
-    return await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
+    return JSON.parse(await this.core.queryRecord(this.https, this.conf, tableName, queryParams));
   }
 
   async updateRecord(tableName, sysId, obj) {
@@ -52,22 +52,31 @@ class SimpleOneAgentInterface {
     return this.core.runScript(this.https, this.conf, content);
   }
 
-  getValue(resultString, fieldName) {
-    const data = JSON.parse(resultString).data;
-    let readyData;
-    if (Array.isArray(data)) {
-      readyData = data[0];
-    } else {
-      readyData = data;
-    }
-    if (!readyData) {
-      console.log(`Ошибка, не может быть прочитано поле ${fieldName}`);
-      return;
-    }
-    const result =
-      typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
+  async quickImport(filePath) {
+    const fileBaseName = this.path.basename(filePath);
+    return this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
+  }
 
-    return String(result);
+  getValue(resultString, fieldName) {
+    if (typeof resultString === 'String') {
+      const data = JSON.parse(resultString).data;
+      let readyData;
+      if (Array.isArray(data)) {
+        readyData = data[0];
+      } else {
+        readyData = data;
+      }
+      if (!readyData) {
+        console.log(`Ошибка, не может быть прочитано поле ${fieldName}`);
+        return;
+      }
+      const result =
+        typeof readyData[fieldName] === 'object' ? readyData[fieldName].value : readyData[fieldName];
+
+      return String(result);
+    } else {
+      return resultString.data;
+    }
   }
 
   getStatus(resultString) {
@@ -76,14 +85,44 @@ class SimpleOneAgentInterface {
     return String(status);
   }
 
-  /*
-  async getDocId(tableName, sysId) {
-    const scriptStr = SOAgentIncludes.IGetDocID(tableName, sysId);
-    const content = JSON.stringify({ script: scriptStr });
-    const resultText = await core.runScript(https, conf, content);
-
-    return _resultFilter(resultText);
+  saveJSONToFile(fileNameTemplate, content, table_name, beautifier = false) {
+    const path = './file.json';
+    let tab = 0;
+    if (beautifier) tab = 2;
+    const content2 = { [table_name]: content };
+    this.fs.writeFileSync(path, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
   }
+
+  async getDocId(tableName, recordSysId) {
+    const dict = require('./dictionaries.js');
+    const dicTableSysId = dict.tablesAndSysIds.get(tableName);
+    if (dicTableSysId) {
+      console.log("Подсчитано быстро");
+      const tableDocId = BigInt(dicTableSysId);
+      let tableHexString = tableDocId.toString(16);
+      tableHexString = tableHexString.padStart(16, '0');
+
+      const recordDocId = BigInt(recordSysId);
+      let recordHexString = recordDocId.toString(16);
+      recordHexString = recordHexString.padStart(16, '0');
+      
+      return tableHexString + recordHexString;
+    } else {
+      console.log("Подсчитано медлено");
+      const soIncludes = require('../app_layer/soIncludes.js');
+      const scriptStr = soIncludes.getDocId(tableName, recordSysId);
+      const content = JSON.stringify({ script: scriptStr });
+      const resultText = await this.core.runScript(this.https, this.conf, content);
+      const rawString = JSON.parse(resultText)?.data?.info;
+     
+      return this.removeDebugPrefix(rawString);
+    }
+  }
+
+removeDebugPrefix(str) {
+    return str.replace(/^(Debug|Отладка):\s*/i, '');
+}
+  /*
 
   attachFileToRecord(docId, filePath) {
     const fileName = path.basename(filePath);
@@ -108,90 +147,6 @@ class SimpleOneAgentInterface {
     return core.runScript(https, conf, content);
   }
 
-  getMIMEtype(extension) {
-    const mimeTypes = new Map([
-      ['.aac', 'audio/aac'],
-      ['.abw', 'application/x-abiword'],
-      ['.apng', 'image/apng'],
-      ['.arc', 'application/x-freearc'],
-      ['.avif', 'image/avif'],
-      ['.avi', 'video/x-msvideo'],
-      ['.azw', 'application/vnd.amazon.ebook'],
-      ['.bin', 'application/octet-stream'],
-      ['.bmp', 'image/bmp'],
-      ['.bz', 'application/x-bzip'],
-      ['.bz2', 'application/x-bzip2'],
-      ['.cda', 'application/x-cdf'],
-      ['.csh', 'application/x-csh'],
-      ['.css', 'text/css'],
-      ['.csv', 'text/csv'],
-      ['.doc', 'application/msword'],
-      ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-      ['.eot', 'application/vnd.ms-fontobject'],
-      ['.epub', 'application/epub+zip'],
-      ['.gz', 'application/gzip'],
-      ['.gif', 'image/gif'],
-      ['.htm', 'text/html'],
-      ['.html', 'text/html'],
-      ['.ico', 'image/vnd.microsoft.icon'],
-      ['.ics', 'text/calendar'],
-      ['.jar', 'application/java-archive'],
-      ['.jpeg', 'image/jpeg'],
-      ['.jpg', 'image/jpeg'],
-      ['.js', 'text/javascript'],
-      ['.json', 'application/json'],
-      ['.jsonld', 'application/ld+json'],
-      ['.mid', 'audio/midi'],
-      ['.midi', 'audio/midi'],
-      ['.mjs', 'text/javascript'],
-      ['.mp3', 'audio/mpeg'],
-      ['.mp4', 'video/mp4'],
-      ['.mpeg', 'video/mpeg'],
-      ['.mpkg', 'application/vnd.apple.installer+xml'],
-      ['.odp', 'application/vnd.oasis.opendocument.presentation'],
-      ['.ods', 'application/vnd.oasis.opendocument.spreadsheet'],
-      ['.odt', 'application/vnd.oasis.opendocument.text'],
-      ['.oga', 'audio/ogg'],
-      ['.ogv', 'video/ogg'],
-      ['.ogx', 'application/ogg'],
-      ['.opus', 'audio/opus'],
-      ['.otf', 'font/otf'],
-      ['.png', 'image/png'],
-      ['.pdf', 'application/pdf'],
-      ['.php', 'application/x-httpd-php'],
-      ['.ppt', 'application/vnd.ms-powerpoint'],
-      ['.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
-      ['.rar', 'application/vnd.rar'],
-      ['.rtf', 'application/rtf'],
-      ['.sh', 'application/x-sh'],
-      ['.svg', 'image/svg+xml'],
-      ['.tar', 'application/x-tar'],
-      ['.tif', 'image/tiff'],
-      ['.tiff', 'image/tiff'],
-      ['.ts', 'video/mp2t'],
-      ['.ttf', 'font/ttf'],
-      ['.txt', 'text/plain'],
-      ['.vsd', 'application/vnd.visio'],
-      ['.wav', 'audio/wav'],
-      ['.weba', 'audio/webm'],
-      ['.webm', 'video/webm'],
-      ['.webp', 'image/webp'],
-      ['.woff', 'font/woff'],
-      ['.woff2', 'font/woff2'],
-      ['.xhtml', 'application/xhtml+xml'],
-      ['.xls', 'application/vnd.ms-excel'],
-      ['.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-      ['.xml', 'application/xml'],
-      ['.xul', 'application/vnd.mozilla.xul+xml'],
-      ['.zip', 'application/zip'],
-      ['.3gp', 'video/3gpp'],
-      ['.3g2', 'video/3gpp2'],
-      ['.7z', 'application/x-7z-compressed'],
-    ]);
-    const MIMECandidate = mimeTypes.get(extension);
-
-    return MIMECandidate ? MIMECandidate : 'application/octet-stream';
-  }
 }
 
 function _resultFilter(text) {
