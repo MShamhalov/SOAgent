@@ -26,30 +26,74 @@ class SimpleOneAgentInterface {
   }
 
   async queryRecord(tableName, queryParams) {
-    return JSON.parse(await this.core.queryRecord(this.https, this.conf, tableName, queryParams));
+    try {
+      const RAWresult = await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        const error = new Error("Request failed");
+        console.error(error.message);
+        throw error;
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error query record:", error.message);
+      throw error;
+    }
   }
 
   async updateRecord(tableName, sysId, obj) {
-    let result;
+    let inputData;
+
     if (typeof obj === 'string') {
-      result = obj;
-    } else if (typeof obj === 'object') {
-      result = JSON.stringify(obj);
+      inputData = obj;
+    } else if (obj && typeof obj === 'object') {
+      inputData = JSON.stringify(obj);
     } else {
-      console.error('Ошибка! Не верный тип');
+      const error = new Error('Invalid input type: expected string or object');
+      console.error(error.message);
+      throw error;
     }
 
-    return await this.core.updateRecord(this.https, this.conf, tableName, sysId, result);
+    try {
+      const RAWresult = await this.core.updateRecord(this.https, this.conf, tableName, sysId, inputData);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        const error = new Error("Request failed");
+        console.error(error.message);
+        throw error;
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error updating record:", error.message);
+      throw error;
+    }
   }
 
   async deleteRecord(tableName, sysId) {
     return await this.core.deleteRecord(this.https, this.conf, tableName, sysId);
   }
 
-  async runScript(filePath) {
-    const content = JSON.stringify({ script: this.fs.readFileSync(filePath, 'utf8') });
+  async runScript(scriptContent) {
+    //const content = JSON.stringify({ script: this.fs.readFileSync(filePath, 'utf8') });
+    const content = JSON.stringify({ "script": scriptContent });
+    try {
+      const RAWresult = await this.core.runScript(this.https, this.conf, content);
+      const resultObject = JSON.parse(RAWresult);
 
-    return this.core.runScript(this.https, this.conf, content);
+      if (resultObject.status !== "OK") {
+        const error = new Error("Request failed");
+        console.error(error.message);
+        throw error;
+      }
+      const result = this.removeDebugPrefix(resultObject.data.info);
+
+      return result;
+    } catch (error) {
+      console.error("Error runing script record:", error.message);
+      throw error;
+    }
   }
 
   async quickImport(filePath) {
@@ -57,12 +101,12 @@ class SimpleOneAgentInterface {
     return this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
   }
 
-  getValue(resultString, fieldName, element = 0) {
+  getValue(resultString, fieldName, index = 0) {
     if (typeof resultString === 'string') {
       const data = JSON.parse(resultString).data;
       let readyData;
       if (Array.isArray(data)) {
-        readyData = data[element];
+        readyData = data[index];
       } else {
         readyData = data;
       }
@@ -75,7 +119,7 @@ class SimpleOneAgentInterface {
 
       return String(result);
     } else {
-      return resultString.data[element][fieldName];
+      return resultString.data[index][fieldName];
     }
   }
 
@@ -91,7 +135,6 @@ class SimpleOneAgentInterface {
     const dict = require('./dictionaries.js');
     const dicTableSysId = dict.tablesAndSysIds.get(tableName);
     if (dicTableSysId) {
-      console.log("Подсчитано быстро");
       const tableDocId = BigInt(dicTableSysId);
       let tableHexString = tableDocId.toString(16);
       tableHexString = tableHexString.padStart(16, '0');
@@ -102,7 +145,6 @@ class SimpleOneAgentInterface {
 
       return tableHexString + recordHexString;
     } else {
-      console.log("Подсчитано медлено");
       const soIncludes = require('../app_layer/soIncludes.js');
       const scriptStr = soIncludes.getDocId(tableName, recordSysId);
       const content = JSON.stringify({ script: scriptStr });

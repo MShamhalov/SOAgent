@@ -22,6 +22,16 @@ describe('Последовательные тесты', () => {
     expect(recordId).toMatch(new RegExp(/\d{18}/));
   });
 
+  test('Update Record on Instance', async () => {
+    const updateObject = {
+      subject: 'Не работает беспроводная мышь Proxy M1',
+    };
+    const updatedRecord = await sa.updateRecord('task', recordId, updateObject);
+
+    const SysId = sa.getValue(updatedRecord, 'sys_id');
+    expect(SysId).toMatch(new RegExp(/\d{18}/));
+  });
+
   test('Delete Record on Instance', async () => {
     const deleteRecordString = await sa.deleteRecord('task', recordId);
 
