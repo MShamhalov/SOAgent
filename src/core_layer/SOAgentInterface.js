@@ -57,17 +57,17 @@ class SimpleOneAgentInterface {
     return this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
   }
 
-  getValue(resultString, fieldName) {
-    if (typeof resultString === 'String') {
+  getValue(resultString, fieldName, element = 0) {
+    if (typeof resultString === 'string') {
       const data = JSON.parse(resultString).data;
       let readyData;
       if (Array.isArray(data)) {
-        readyData = data[0];
+        readyData = data[element];
       } else {
         readyData = data;
       }
       if (!readyData) {
-        console.log(`Ошибка, не может быть прочитано поле ${fieldName}`);
+        console.error(`Ошибка, не может быть прочитано поле ${fieldName}`);
         return;
       }
       const result =
@@ -75,14 +75,8 @@ class SimpleOneAgentInterface {
 
       return String(result);
     } else {
-      return resultString.data;
+      return resultString.data[element][fieldName];
     }
-  }
-
-  getStatus(resultString) {
-    const status = JSON.parse(resultString).status;
-
-    return String(status);
   }
 
   saveJSONToFile(fileNameTemplate, content, table_name, beautifier = false) {
@@ -105,7 +99,7 @@ class SimpleOneAgentInterface {
       const recordDocId = BigInt(recordSysId);
       let recordHexString = recordDocId.toString(16);
       recordHexString = recordHexString.padStart(16, '0');
-      
+
       return tableHexString + recordHexString;
     } else {
       console.log("Подсчитано медлено");
@@ -114,14 +108,14 @@ class SimpleOneAgentInterface {
       const content = JSON.stringify({ script: scriptStr });
       const resultText = await this.core.runScript(this.https, this.conf, content);
       const rawString = JSON.parse(resultText)?.data?.info;
-     
+
       return this.removeDebugPrefix(rawString);
     }
   }
 
-removeDebugPrefix(str) {
+  removeDebugPrefix(str) {
     return str.replace(/^(Debug|Отладка):\s*/i, '');
-}
+  }
   /*
 
   attachFileToRecord(docId, filePath) {

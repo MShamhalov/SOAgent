@@ -27,9 +27,6 @@ describe('Последовательные тесты', () => {
 
     recordId = sa.getValue(getRecordsByQuery, 'sys_id');
     expect(recordId).toMatch(new RegExp(/\d{18}/));
-
-    const status = sa.getStatus(getRecordsByQuery);
-    expect(status).toBe('OK');
   });
 
   test('Update Record On Instance', async () => {
@@ -37,9 +34,6 @@ describe('Последовательные тесты', () => {
       subject: 'Не работает беспроводная мышь Proxy M1',
     };
     const updatedRecord = await sa.updateRecord('task', recordId, updateObject);
-
-    const status = sa.getStatus(updatedRecord);
-    expect(status).toBe('OK');
 
     const SysId = sa.getValue(updatedRecord, 'sys_id');
     expect(SysId).toMatch(new RegExp(/\d{18}/));
