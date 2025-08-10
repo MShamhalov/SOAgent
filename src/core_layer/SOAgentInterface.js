@@ -159,7 +159,6 @@ class SimpleOneAgentInterface {
     return str.replace(/^(Debug|Отладка):\s*/i, '');
   }
   /*
-
   attachFileToRecord(docId, filePath) {
     const fileName = path.basename(filePath);
     const fileExt = path.extname(filePath);
@@ -184,15 +183,10 @@ class SimpleOneAgentInterface {
   }
 
 }
-
-function _resultFilter(text) {
-  const forbidden_words = ['Debug: ', 'Отладка: '];
-  for (const current_word of forbidden_words) {
-    if (text.includes(current_word)) {
-      return text.replace(current_word, '');
-    }
-  }
 */
+
+
+
 }
 
 module.exports = { SimpleOneAgentInterface };

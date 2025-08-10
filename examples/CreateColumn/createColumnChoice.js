@@ -9,13 +9,13 @@ const sl = new SOLogin.Login(confFilePath);
 (async function () {
   await sl.refreshToken(confFilePath);
 
-  const index = 85;
+  // const index = 85;
 
   const data = {
     choiceAttributes: {
-      title: `State${index}`,
-      column_name: `state${index}`,
-      table_id: '174074410195124077',
+      title: `Choice State`,
+      column_name: `choice_state`,
+      table_id: '175474838106586829',
       choice_type: '1',
       active: true,
     },

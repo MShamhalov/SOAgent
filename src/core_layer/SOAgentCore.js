@@ -39,7 +39,7 @@ class SOAgentCoreMethods {
 
   getRequestHeader(tableName = null, sysId = null, action) {
     const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport'];
-    const cstActions = ['docid', 'attachFile'];
+    const cstActions = ['attachFile'];
     let path = '';
     let method = 'POST';
     let contentType = 'application/json';
@@ -98,13 +98,6 @@ class SOAgentCoreMethods {
       }
     } else if (cstActions.includes(action)) {
       switch (action) {
-        case 'docid': {
-          path = `/v1/api/itsm_itsm/soagent/docid?table_name=${tableName}&record_id=${sysId}`;
-          method = 'GET';
-          contentType = 'application/json';
-          break;
-        }
-
         case 'attachFile': {
           path = `/v1/api/itsm_itsm/soagent/attach_file`;
           method = 'POST';
@@ -257,26 +250,6 @@ class SOAgentCoreMethods {
 
     return functionResult;
   }
-
-  // async getDocIdValue(https, conf, tableName, sysId) {
-  //   const options = this.getOptions(conf, tableName, sysId, 'docid');
-  //   const functionResult = new Promise((resolve, reject) => {
-  //     const request = https.request(options, (response) => {
-  //       let result = '';
-  //       response
-  //         .on('data', (data) => {
-  //           result += data;
-  //         })
-  //         .on('end', (er) => {
-  //           resolve(JSON.parse(result).DocId);
-  //           request.end();
-  //         });
-  //     });
-  //     request.end();
-  //   });
-
-  //   return functionResult;
-  // }
 
   async attachFileToRecord(https, conf, content) {
     const options = this.getOptions(conf, null, null, 'attachFile');
