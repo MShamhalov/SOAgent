@@ -13,5 +13,8 @@
   },
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.7"
   }
 }

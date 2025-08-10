@@ -12,15 +12,21 @@ const sl = new SOLogin.Login(confFilePath);
 sl.refreshToken(confFilePath);
 
 (async function () {
-  const returnedData = await sq.dbGetData('active=1 AND sys_id IS NULL', 'subject, point_fpsr, record_id');
-  for (const currentRecord of returnedData) {
-    const insertObject = {
-      subject: currentRecord.subject,
-      point_fpsr: currentRecord.point_fpsr,
-    };
+  try {
+    const returnedData = await sq.dbGetData('active=1 AND sys_id IS NULL', 'subject, point_fpsr, record_id');
+    for (const currentRecord of returnedData) {
+      const insertObject = {
+        subject: currentRecord.subject,
+        point_fpsr: currentRecord.point_fpsr,
+      };
 
-    const insertRecord = await sa.insertRecord('shmg_dev_open_data', insertObject);
-    const recordId = sa.getValue(insertRecord, 'sys_id');
-    await sq.dbUpdateField('sys_id', recordId, `record_id=${currentRecord.record_id}`);
+      const insertRecord = await sa.insertRecord('shmg_dev_open_data', insertObject);
+      const recordId = sa.getValue(insertRecord, 'sys_id');
+      await sq.dbUpdateField('sys_id', recordId, `record_id=${currentRecord.record_id}`);
+    }
+  } catch (err) {
+    console.error('Script error:', err);
+  } finally {
+    await sq.close();
   }
 })();
