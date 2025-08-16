@@ -25,7 +25,7 @@ class SimpleOneAgentInterface {
     return await this.core.readRecord(this.https, this.conf, tableName, sysId);
   }
 
-  async queryRecord(tableName, queryParams) {
+  async queryRecord(tableName, queryParams=new Map()) {
     try {
       const RAWresult = await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
       const result = JSON.parse(RAWresult);
@@ -59,9 +59,9 @@ class SimpleOneAgentInterface {
       const RAWresult = await this.core.updateRecord(this.https, this.conf, tableName, sysId, inputData);
       const result = JSON.parse(RAWresult);
       if (result.status !== "OK") {
-        const error = new Error("Request failed");
-        console.error(error.message);
-        throw error;
+        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
+        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        return;
       }
 
       return result;
@@ -124,11 +124,10 @@ class SimpleOneAgentInterface {
   }
 
   saveJSONToFile(fileNameTemplate, content, table_name, beautifier = false) {
-    const path = './file.json';
     let tab = 0;
     if (beautifier) tab = 2;
     const content2 = { [table_name]: content };
-    this.fs.writeFileSync(path, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
+    this.fs.writeFileSync(fileNameTemplate, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
   }
 
   async getDocId(tableName, recordSysId) {
@@ -158,6 +157,7 @@ class SimpleOneAgentInterface {
   removeDebugPrefix(str) {
     return str.replace(/^(Debug|Отладка):\s*/i, '');
   }
+  
   /*
   attachFileToRecord(docId, filePath) {
     const fileName = path.basename(filePath);
