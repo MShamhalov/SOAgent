@@ -9,30 +9,43 @@ class SimpleOneAgentInterface {
   }
 
   async insertRecord(tableName, obj) {
-    let result;
+    let stringObject = '';
     if (typeof obj === 'string') {
-      result = obj;
+      stringObject = obj;
     } else if (typeof obj === 'object') {
-      result = JSON.stringify(obj);
+      stringObject = JSON.stringify(obj);
     } else {
-      console.error('Ошибка! Не верный тип');
+      const error = new Error('Invalid input type: expected string or object');
+      console.error(error.message);
+      throw error;
     }
-
-    return await this.core.insertRecord(this.https, this.conf, tableName, result);
+    try {
+      const RAWresult = await this.core.insertRecord(this.https, this.conf, tableName, stringObject);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
+        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        return;
+      }
+      return result
+    } catch (error) {
+      console.error("Error query record:", error.message);
+      throw error;
+    }
   }
 
   async readRecord(tableName, sysId) {
     return await this.core.readRecord(this.https, this.conf, tableName, sysId);
   }
 
-  async queryRecord(tableName, queryParams=new Map()) {
+  async queryRecord(tableName, queryParams = new Map()) {
     try {
       const RAWresult = await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
       const result = JSON.parse(RAWresult);
       if (result.status !== "OK") {
-        const error = new Error("Request failed");
-        console.error(error.message);
-        throw error;
+        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
+        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        return;
       }
 
       return result;
@@ -47,7 +60,7 @@ class SimpleOneAgentInterface {
 
     if (typeof obj === 'string') {
       inputData = obj;
-    } else if (obj && typeof obj === 'object') {
+    } else if (typeof obj === 'object') {
       inputData = JSON.stringify(obj);
     } else {
       const error = new Error('Invalid input type: expected string or object');
@@ -76,16 +89,15 @@ class SimpleOneAgentInterface {
   }
 
   async runScript(scriptContent) {
-    //const content = JSON.stringify({ script: this.fs.readFileSync(filePath, 'utf8') });
     const content = JSON.stringify({ "script": scriptContent });
     try {
       const RAWresult = await this.core.runScript(this.https, this.conf, content);
       const resultObject = JSON.parse(RAWresult);
 
       if (resultObject.status !== "OK") {
-        const error = new Error("Request failed");
-        console.error(error.message);
-        throw error;
+        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
+        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        return;
       }
       const result = this.removeDebugPrefix(resultObject.data.info);
 
@@ -157,7 +169,7 @@ class SimpleOneAgentInterface {
   removeDebugPrefix(str) {
     return str.replace(/^(Debug|Отладка):\s*/i, '');
   }
-  
+
   /*
   attachFileToRecord(docId, filePath) {
     const fileName = path.basename(filePath);
@@ -184,9 +196,6 @@ class SimpleOneAgentInterface {
 
 }
 */
-
-
-
 }
 
 module.exports = { SimpleOneAgentInterface };

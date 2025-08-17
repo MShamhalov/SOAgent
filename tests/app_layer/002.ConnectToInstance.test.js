@@ -22,7 +22,7 @@ describe('Последовательные тесты', () => {
     expect(response.statusCode).toBe(200);
   });
 
-  test('Host is instance of Simplene', async () => {
+  test('Host is instance of SimpleOne', async () => {
     const regex = /<meta\s+name="application-name"\s+content="([^"]+)"\s*\/?>/;
     const match = regex.exec(response.body);
     expect(match[1]).toBe('SimpleOne');
