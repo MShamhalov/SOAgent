@@ -193,11 +193,11 @@ class SimpleOneAgentInterface {
 
 errorProcessing(response) {
   if (response.status == '401') {
-    console.error(`Request status: ${response.status}, Error: ${response.message}`);
+    console.error(`Request status: ${response.status}, Error message: ${response.message}`);
     return;
   }
   const combineErrorMessage = response.errors.map(error => error.message).join('; \n');
-  console.error(`Request status: ${response.status} Error: ${combineErrorMessage}`);
+  console.error(`Request status: ${response.status}, Error message: ${combineErrorMessage}`);
   return;
 }
 }

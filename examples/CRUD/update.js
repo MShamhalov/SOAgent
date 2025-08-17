@@ -6,11 +6,12 @@ const SOLogin = require('../../src/core_layer/SOLogin.js');
 const sl = new SOLogin.Login(confFilePath);
 
 (async function(){
-  const insertObject = {
+  
+  const updateObject = {
     subject: 'Не работает беспроводная клавиатура Roxy M17',
   };
-  const insertRecord = await sa.insertRecord('task', insertObject);
-  
-  recordId = sa.getValue(insertRecord, 'sys_id');
-  console.log()
+  const updateRecord = await sa.updateRecord('task', '175542144008342247', updateObject);
+  if (!updateRecord) return;
+  recordId = sa.getValue(updateRecord, 'sys_id');
+  console.log(recordId);
 })();
