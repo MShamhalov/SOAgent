@@ -308,7 +308,7 @@ class SOAgentCoreMethods {
 
     const filePart = `--${boundary}\r\n` +
       `Content-Disposition: form-data; name="file"; filename="${fileBaseName}"\r\n` +
-      `Content-Type: application/json\r\n\r\n`; // Изменен MIME-тип
+      `Content-Type: application/json\r\n\r\n`;
 
     const bodyEnd = `\r\n--${boundary}--\r\n`;
 
