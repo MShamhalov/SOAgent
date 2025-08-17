@@ -23,8 +23,7 @@ class SimpleOneAgentInterface {
       const RAWresult = await this.core.insertRecord(this.https, this.conf, tableName, stringObject);
       const result = JSON.parse(RAWresult);
       if (result.status !== "OK") {
-        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
-        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        this.errorProcessing(result);
         return;
       }
       return result
@@ -43,11 +42,9 @@ class SimpleOneAgentInterface {
       const RAWresult = await this.core.queryRecord(this.https, this.conf, tableName, queryParams);
       const result = JSON.parse(RAWresult);
       if (result.status !== "OK") {
-        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
-        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        this.errorProcessing(result);
         return;
       }
-
       return result;
     } catch (error) {
       console.error("Error query record:", error.message);
@@ -72,11 +69,9 @@ class SimpleOneAgentInterface {
       const RAWresult = await this.core.updateRecord(this.https, this.conf, tableName, sysId, inputData);
       const result = JSON.parse(RAWresult);
       if (result.status !== "OK") {
-        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
-        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+        this.errorProcessing(result);
         return;
       }
-
       return result;
     } catch (error) {
       console.error("Error updating record:", error.message);
@@ -92,14 +87,13 @@ class SimpleOneAgentInterface {
     const content = JSON.stringify({ "script": scriptContent });
     try {
       const RAWresult = await this.core.runScript(this.https, this.conf, content);
-      const resultObject = JSON.parse(RAWresult);
+      const response = JSON.parse(RAWresult);
 
-      if (resultObject.status !== "OK") {
-        const combineErrorMessage = result.errors.map(error => error.message).join('; \n');
-        console.error(`Request status: ${result.status} Error: ${combineErrorMessage}`);
+      if (response.status !== "OK") {
+        this.errorProcessing(response);
         return;
       }
-      const result = this.removeDebugPrefix(resultObject.data.info);
+      const result = this.removeDebugPrefix(response.data.info);
 
       return result;
     } catch (error) {
@@ -196,6 +190,16 @@ class SimpleOneAgentInterface {
 
 }
 */
+
+errorProcessing(response) {
+  if (response.status == '401') {
+    console.error(`Request status: ${response.status}, Error: ${response.message}`);
+    return;
+  }
+  const combineErrorMessage = response.errors.map(error => error.message).join('; \n');
+  console.error(`Request status: ${response.status} Error: ${combineErrorMessage}`);
+  return;
+}
 }
 
 module.exports = { SimpleOneAgentInterface };

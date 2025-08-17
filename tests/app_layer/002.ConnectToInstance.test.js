@@ -4,7 +4,7 @@ const confFilePath = './tests/.env';
 
 var response;
 beforeAll(async () => {
-  RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+  const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);
 
   const options = {
