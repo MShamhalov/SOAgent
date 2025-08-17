@@ -10,7 +10,7 @@ beforeAll(async () => {
 });
 
 describe('Последовательные тесты', () => {
-    test('Delete Record on Instance', async () => {
+    test('QuickUpload', async () => {
         
     });
 });
