@@ -11,7 +11,7 @@ class SOAgentCoreMethods {
     if (action === 'query') {
       options.path = this.addParamsToPath(options.path, queryParams);
     }
-
+    const readyToken = this.addBearerToToken(conf.token);
     return {
       hostname: conf.instance,
       port: 443,
@@ -20,7 +20,7 @@ class SOAgentCoreMethods {
       headers: {
         'Content-Type': options.contentType,
         ForceUseSession: 'true',
-        Authorization: conf.token,
+        Authorization: readyToken,
       },
     };
   }
@@ -347,6 +347,15 @@ class SOAgentCoreMethods {
       console.error('File read error:', err);
       req.destroy(err);
     });
+  }
+
+  addBearerToToken(tokenCandidate) {
+    let result = tokenCandidate;
+    if (tokenCandidate.substring(0, 7) !== 'Bearer ') {
+      result = "Bearer " + tokenCandidate
+    }
+
+    return result;
   }
 }
 
