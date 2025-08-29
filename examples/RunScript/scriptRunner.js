@@ -1,16 +1,21 @@
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-
-const confFilePath = './examples/.env';
-const sl = new SOLogin.Login(confFilePath);
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 const fs = require('fs');
+const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
+const confFilePath = './examples/.env';
+const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+
+const SOLogin = require('../../src/core_layer/SOLogin.js');
+const sl = new SOLogin.Login(confFilePath);
 
 (async function () {
   await sl.refreshToken(confFilePath);
 
   const args = process.argv.slice(2);
   const fileContent = fs.readFileSync(args[0], 'utf-8');
+
+  if (args[1] === "precondition") {
+    const precondition = fs.readFileSync('./examples/RunScript/precondition.js', 'utf-8');
+    fileContent = precondition + fileContent;
+  } 
 
   const taskTableSysId = await sa.runScript(fileContent);
   console.log(taskTableSysId);
