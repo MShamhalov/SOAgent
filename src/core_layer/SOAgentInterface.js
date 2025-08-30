@@ -147,16 +147,12 @@ class SimpleOneAgentInterface {
       const recordDocId = BigInt(recordSysId);
       let recordHexString = recordDocId.toString(16);
       recordHexString = recordHexString.padStart(16, '0');
-
       return tableHexString + recordHexString;
     } else {
       const soIncludes = require('../app_layer/soIncludes.js');
       const scriptStr = soIncludes.getDocId(tableName, recordSysId);
-      const content = JSON.stringify({ script: scriptStr });
-      const resultText = await this.core.runScript(this.https, this.conf, content);
-      const rawString = JSON.parse(resultText)?.data?.info;
-
-      return this.removeDebugPrefix(rawString);
+      const resultText = await this.runScript(scriptStr);
+      return resultText;
     }
   }
 
