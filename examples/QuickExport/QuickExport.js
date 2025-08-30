@@ -1,13 +1,8 @@
-const SOLogin = require('../../src/core_layer/SOLogin.js');
 const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-
 const confFilePath = './examples/SOAgent.conf';
-const sl = new SOLogin.Login(confFilePath);
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
 (async function () {
-    await sl.refreshToken(confFilePath);
-
     const queryParams = new Map([
       ['sysparm_query', ''],
       ['sysparm_display_value', ''],

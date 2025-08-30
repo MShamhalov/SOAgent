@@ -3,12 +3,7 @@ const confFilePath = './examples/.env';
 const TableHelper = require('../../src/app_layer/tableHelper.js');
 const th = new TableHelper.SOTableHelper(confFilePath);
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
-
 (async function () {
-  await sl.refreshToken(confFilePath);
-
   // const index = 85;
 
   const data = {

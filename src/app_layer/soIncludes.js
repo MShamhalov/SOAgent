@@ -1,7 +1,6 @@
-function IGetRecordUrlBySysId(instance, objSysId) {
+function getRecordUrlBySysId(instance, objSysId) {
   const scriptStr = `const recordID = '${objSysId}';
     const tables = new SimpleRecord('sys_db_table');
-    tables.addEncodedQuery('name!=sys_re_table');
     tables.query();
     while (tables.next()) {
       const current = new SimpleRecord(tables.name);
@@ -10,8 +9,8 @@ function IGetRecordUrlBySysId(instance, objSysId) {
         continue;
       } else {
         const candidateTable=tables.name; 
-        const tableName=getCurrentTable(candidateTable,recordID);
-        ss.debug('https://${instance}/record/'+tableName+'/'+recordID);
+        const tableName=getCurrentTable(candidateTable, recordID);
+        ss.debug('https://${instance}/record/' + tableName + '/' + recordID);
         break;
       }
     }

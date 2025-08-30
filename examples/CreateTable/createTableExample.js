@@ -2,12 +2,7 @@ const TableHelper = require('../../src/app_layer/tableHelper.js');
 const confFilePath = './examples/.env';
 const th = new TableHelper.SOTableHelper(confFilePath);
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
-
 (async function () {
-  await sl.refreshToken(confFilePath);
-
   const options = {
     title: 'TestTable4',
     name: '',

@@ -2,11 +2,7 @@ const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
 const confFilePath = './examples/.env';
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
-
-(async function(){
-  
+(async function() {
   const updateObject = {
     subject: 'Не работает беспроводная клавиатура Roxy M17',
   };

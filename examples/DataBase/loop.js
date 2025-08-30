@@ -6,11 +6,6 @@ const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
 const confFilePath = './examples/.env';
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
-
-sl.refreshToken(confFilePath);
-
 (async function () {
   try {
     const returnedData = await sq.dbGetData('active=1 AND (sys_id IS NULL OR sys_id = "")', 'subject, point_fpsr, record_id, name_of_the_statistical_factor, importance_of_the_statistical_factor');
