@@ -136,9 +136,11 @@ class SimpleOneAgentInterface {
     this.fs.writeFileSync(fileNameTemplate, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
   }
 
-  async getDocId(tableName, recordSysId) {
-    const dict = require('./dictionaries.js');
-    const dicTableSysId = dict.tablesAndSysIds.get(tableName);
+  async getDocId(tableNameOrId, recordSysId) {
+    const TableDictionary = require('./SOTableDictionary.js');
+    const tableDict = new TableDictionary();
+    const sysIdPattern = /\d{18}/;
+    const dicTableSysId = sysIdPattern.test(tableNameOrId) ? tableNameOrId : tableDict.getTableId(tableNameOrId);
     if (dicTableSysId) {
       const tableDocId = BigInt(dicTableSysId);
       let tableHexString = tableDocId.toString(16);

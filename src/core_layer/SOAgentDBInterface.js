@@ -9,7 +9,6 @@ class SOAgentDBInterface {
       if (err) throw new Error(`Database connection error: ${err.message}`);
     });
 
-    // Обработчик SIGINT вынесен в конструктор (вызывается единожды)
     process.on('SIGINT', async () => {
       try {
         await this.close();
@@ -22,7 +21,6 @@ class SOAgentDBInterface {
     });
   }
 
-  // Метод для безопасного закрытия БД
   close() {
     return new Promise((resolve, reject) => {
       this.db.close(err => err ? reject(err) : resolve());
@@ -31,13 +29,11 @@ class SOAgentDBInterface {
 
   async dbGetData(condition, returnedFields) {
     try {
-      // Безопасная проверка имен полей
       if (!/^[\w,\s]+$/.test(returnedFields)) {
         throw new Error('Invalid field names');
       }
       
       const rows = await new Promise((resolve, reject) => {
-        // Параметризованный запрос
         this.db.all(
           `SELECT ${returnedFields} FROM ${this.table} WHERE ${condition}`,
           [],
@@ -52,13 +48,11 @@ class SOAgentDBInterface {
   }
 
   async dbUpdateField(targetField, value, condition) {
-    // Безопасная проверка имени поля
     if (!/^\w+$/.test(targetField)) {
       throw new Error('Invalid field name');
     }
     
     await new Promise((resolve, reject) => {
-      // Параметризованный запрос
       this.db.run(
         `UPDATE ${this.table} SET ${targetField} = ? WHERE ${condition}`,
         [value],
