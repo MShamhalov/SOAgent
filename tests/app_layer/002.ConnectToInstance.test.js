@@ -6,9 +6,10 @@ var response;
 beforeAll(async () => {
   const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);
+  const defAcc = config.default_account;
 
   const options = {
-    hostname: config.instance,
+    hostname: config.accounts[defAcc].instance,
     port: 443,
     path: '/',
     method: 'GET',

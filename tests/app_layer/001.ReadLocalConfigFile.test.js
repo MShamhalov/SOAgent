@@ -7,8 +7,9 @@ test('Read Local Config File', async () => {
   RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);
 
-  expect(config.protocol).toBeTruthy();
-  expect(config.instance).toBeTruthy();
-  expect(config.login).toBeTruthy();
-  expect(config.password).toBeTruthy();
+  expect(config.default_account).toBeTruthy();
+  expect(config.accounts[config.default_account].protocol).toBeTruthy();
+  expect(config.accounts[config.default_account].instance).toBeTruthy();
+  expect(config.accounts[config.default_account].login).toBeTruthy();
+  expect(config.accounts[config.default_account].password).toBeTruthy();
 });

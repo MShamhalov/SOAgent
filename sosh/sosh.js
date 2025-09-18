@@ -1,5 +1,6 @@
-const SOAgent = require('./soagent/src/core_layer/SOAgentInterface.js');
-const confFilePath = './tmp/.env';
+const { sign } = require('crypto');
+const SOAgent = require('../src/core_layer/SOAgentInterface.js');
+const confFilePath = './examples/.env';
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -47,20 +48,27 @@ const commands = {
 
   async findById(args) {
     const searchId = args[0];
-    const SOHelper = require('./soagent/src/app_layer/soIncludes.js');
+    const SOHelper = require('../src/app_layer/soIncludes.js');
     fileContent = SOHelper.findRecordById(searchId);
     const result = await sa.runScript(fileContent);
     console.log(result);
   },
 
   async instance() {
-    const SOHelper = require('./soagent/src/app_layer/soIncludes.js');
+    const SOHelper = require('../src/app_layer/soIncludes.js');
     script = SOHelper.getInstance();
     const result = await sa.runScript(script);
     console.log("Local File Path: " + sa.conf.instance);
     console.log("simple.instance.uri: " + result);
   },
 
+  async si(args) {
+    const SOLogin = require('../src/core_layer/SOLogin.js');
+    const sl = new SOLogin.Login(confFilePath);
+    console.log(await sl.switchInstance(args[0]));
+    // const path = '';
+    // const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
+  },
 
   async getChoiceValue(args) {
     const parentTableName = args[0];
