@@ -27,7 +27,8 @@ class Login {
       return;
     }
     data = JSON.parse(RAWdata);
-    data.token = 'Bearer ' + token;
+    const defAcc = data.default_account;
+    data.accounts[defAcc].token = 'Bearer ' + token;
     this.fs.writeFileSync(confFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.error("Error can't write file!");

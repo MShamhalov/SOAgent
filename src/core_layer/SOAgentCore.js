@@ -3,7 +3,10 @@ class SOAgentCoreMethods {
 
   getConfiguration(fs, workDir) {
     const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
-    return JSON.parse(fileContent);
+    const allConfigurations = JSON.parse(fileContent);
+    const defaultConfig = allConfigurations.default_account;
+    
+    return allConfigurations.accounts[defaultConfig];
   }
 
   getOptions(conf, tableName = null, sysId = null, action, queryParams = null) {
@@ -251,30 +254,30 @@ class SOAgentCoreMethods {
     return functionResult;
   }
 
-  async attachFileToRecord(https, conf, content) {
-    const options = this.getOptions(conf, null, null, 'attachFile');
-    const functionResult = new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            resolve(result);
-            request.end();
-          });
-      });
-      request.on('error', (error) => {
-        reject(error);
-        request.end();
-      });
-      request.write(content);
-      request.end();
-    });
+  // async attachFileToRecord(https, conf, content) {
+  //   const options = this.getOptions(conf, null, null, 'attachFile');
+  //   const functionResult = new Promise((resolve, reject) => {
+  //     const request = https.request(options, (response) => {
+  //       let result = '';
+  //       response
+  //         .on('data', (data) => {
+  //           result += data;
+  //         })
+  //         .on('end', (er) => {
+  //           resolve(result);
+  //           request.end();
+  //         });
+  //     });
+  //     request.on('error', (error) => {
+  //       reject(error);
+  //       request.end();
+  //     });
+  //     request.write(content);
+  //     request.end();
+  //   });
 
-    return functionResult;
-  }
+  //   return functionResult;
+  // }
 
   async runScript(https, conf, scriptContent) {
     const options = this.getOptions(conf, null, null, 'runScript');
