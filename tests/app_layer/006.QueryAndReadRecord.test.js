@@ -1,12 +1,12 @@
 const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = './tests/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const account = require('../../SOAgent.conf').envFilePath;
+const sa = new SOAgent.SimpleOneAgentInterface(account);
 
 const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
+const sl = new SOLogin.Login(account);
 
 beforeAll(async () => {
-  sl.refreshToken(confFilePath);
+  sl.refreshToken(account);
 });
 
 describe('Последовательные тесты', () => {

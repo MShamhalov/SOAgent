@@ -1,10 +1,10 @@
 const https = require('https');
 const fs = require('fs');
-const confFilePath = './tests/.env';
+const account = require('../../SOAgent.conf').envFilePath;
 
 var response;
 beforeAll(async () => {
-  const RAWdata = fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+  const RAWdata = fs.readFileSync(account, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);
   const defAcc = config.default_account;
 

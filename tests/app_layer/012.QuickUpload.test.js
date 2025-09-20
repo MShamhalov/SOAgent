@@ -1,14 +1,14 @@
 const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = './tests/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const account = require('../../SOAgent.conf').envFilePath;
+const sa = new SOAgent.SimpleOneAgentInterface(account);
 
 const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
+const sl = new SOLogin.Login(account);
 
 const fs = require('fs');
 
 beforeAll(async () => {
-    sl.refreshToken(confFilePath);
+    sl.refreshToken(account);
     const uploadContent = {
         "task": [
             {
@@ -35,6 +35,6 @@ beforeAll(async () => {
 
 describe('Последовательные тесты', () => {
     test('QuickUpload', async () => {
-        sa.quickImport(filePath);
+        sa.quickImport('./uploadFile.json');
     });
 });

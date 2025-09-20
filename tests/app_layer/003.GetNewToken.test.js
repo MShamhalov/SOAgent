@@ -1,6 +1,6 @@
 const SOLogin = require('../../src/core_layer/SOLogin.js');
-const confFilePath = './tests/.env';
-const sl = new SOLogin.Login(confFilePath);
+const account = require('../../SOAgent.conf').envFilePath;
+const sl = new SOLogin.Login(account);
 
 beforeAll(async () => {});
 
