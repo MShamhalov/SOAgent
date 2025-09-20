@@ -115,7 +115,7 @@ const commands = {
     this.findById(args);
   },
 
-  async si(args) {
+  async swi(args) {
     this.switchInstance(args);
   },
 

@@ -5,7 +5,7 @@ class SOAgentCoreMethods {
     const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
     const allConfigurations = JSON.parse(fileContent);
     const defaultConfig = allConfigurations.default_account;
-    
+
     return allConfigurations.accounts[defaultConfig];
   }
 
@@ -41,7 +41,7 @@ class SOAgentCoreMethods {
   }
 
   getRequestHeader(tableName = null, sysId = null, action) {
-    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport'];
+    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport', 'clearCache'];
     const cstActions = ['attachFile'];
     let path = '';
     let method = 'POST';
@@ -95,6 +95,12 @@ class SOAgentCoreMethods {
 
         case 'quickImport': {
           path = `/v1/import/json/`;
+          break;
+        }
+
+        case 'clearCache': {
+          path = `/v1/settings/flush-cache?access-token=`;
+          method = 'GET';
           break;
         }
 
@@ -350,6 +356,33 @@ class SOAgentCoreMethods {
       console.error('File read error:', err);
       req.destroy(err);
     });
+  }
+
+  async clearCache() {
+    const options = this.getOptions(conf, null, null, 'clearCache');
+    options.path += options.headers.Authorization.slice(7);
+    delete options.headers;
+
+    const functionResult = new Promise((resolve, reject) => {
+      const request = https.request(options, (response) => {
+        let result = '';
+        response
+          .on('data', (data) => {
+            result += data;
+          })
+          .on('end', (er) => {
+            resolve(result);
+            request.end();
+          });
+      });
+      request.on('error', (error) => {
+        reject(error);
+        request.end();
+      });
+      request.end();
+    });
+
+    return functionResult;
   }
 
   addBearerToToken(tokenCandidate) {
