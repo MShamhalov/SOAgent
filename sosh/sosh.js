@@ -62,12 +62,11 @@ const commands = {
     console.log("simple.instance.uri: " + result);
   },
 
-  async si(args) {
+  async switchInstance(args) {
     const SOLogin = require('../src/core_layer/SOLogin.js');
     const sl = new SOLogin.Login(confFilePath);
-    console.log(await sl.switchInstance(args[0]));
-    // const path = '';
-    // const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
+    await sl.switchInstance(args[0]);
+    sa.reloadConfig();
   },
 
   async getChoiceValue(args) {
@@ -114,6 +113,10 @@ const commands = {
 
   async fbi(args) {
     this.findById(args);
+  },
+
+  async si(args) {
+    this.switchInstance(args);
   },
 
   exit() {

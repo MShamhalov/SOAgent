@@ -5,7 +5,12 @@ class SimpleOneAgentInterface {
     this.path = require('path');
     const SOAgentCore = require('./SOAgentCore.js');
     this.core = new SOAgentCore.SOAgentCoreMethods();
+    this.confFilePath = confFilePath;
     this.conf = this.core.getConfiguration(this.fs, confFilePath);
+  }
+
+  reloadConfig() {
+    this.conf = this.core.getConfiguration(this.fs, this.confFilePath);
   }
 
   async insertRecord(tableName, obj) {
