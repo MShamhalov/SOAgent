@@ -58,7 +58,10 @@ class Login {
       console.error(`Не найден инстанс ${newAccount}`);
       return;
     }
-
+    if (data.default_account === newAccount) {
+      console.log(`Инстанс ${data.default_account} уже установлен`);
+      return;
+    }
 
     data.default_account = newAccount;
 

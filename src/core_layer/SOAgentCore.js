@@ -358,7 +358,7 @@ class SOAgentCoreMethods {
     });
   }
 
-  async clearCache() {
+  async clearCache(https, conf) {
     const options = this.getOptions(conf, null, null, 'clearCache');
     options.path += options.headers.Authorization.slice(7);
     delete options.headers;

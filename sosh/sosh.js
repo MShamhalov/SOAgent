@@ -69,6 +69,10 @@ const commands = {
     sa.reloadConfig();
   },
 
+  async clearCache() {
+    console.log(await sa.clearCache());
+  },
+
   async getChoiceValue(args) {
     const parentTableName = args[0];
     const choiceColumnName = args[1];
@@ -117,6 +121,10 @@ const commands = {
 
   async swi(args) {
     this.switchInstance(args);
+  },
+
+  async cc() {
+    this.clearCache();
   },
 
   exit() {

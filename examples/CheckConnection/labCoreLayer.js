@@ -7,5 +7,5 @@ const confFilePath = './examples/.env';
 conf = core.getConfiguration(fs, confFilePath);
 
 (async function () {
-  console.log(await core.clearCache());
+  
 })();

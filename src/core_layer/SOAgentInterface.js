@@ -112,6 +112,10 @@ class SimpleOneAgentInterface {
     return this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
   }
 
+  async clearCache() {
+    return await this.core.clearCache(this.https, this.conf);
+  }
+
   getValue(resultString, fieldName, index = 0) {
     if (typeof resultString === 'string') {
       const data = JSON.parse(resultString).data;
