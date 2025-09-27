@@ -12,25 +12,43 @@ class Login {
   async getUserToken(auth_type) {
     const answer = await this.core.getUserToken(this.https, this.conf, auth_type);
     try {
-      return JSON.parse(answer).data.auth_key;
+      const tokenCandidate = JSON.parse(answer).data.auth_key;
+      if (!this._isTokenLooksCorrect(tokenCandidate)) return;
+      return tokenCandidate;
     } catch {
       console.error('Invalid username or password!');
     }
   }
 
-  setTokenToConfig(confFilePath, token) {
+  setTokenToConfig(instanceCandidate, tokenCandidate) {
+    let mode = tokenCandidate ? "fullInfoMode" : "tokenOnlyMode;"
+    let token;
+    let instanceTitle;
     let data = {};
     let RAWdata = '';
     try {
-      RAWdata = this.fs.readFileSync(confFilePath, { encoding: 'utf8', flag: 'r' });
+      RAWdata = this.fs.readFileSync(this.confFilePath, { encoding: 'utf8', flag: 'r' });
     } catch {
-      console.error(`Error! File ${confFilePath} not found!`);
+      console.error(`Error! File ${this.confFilePath} not found!`);
       return;
     }
     data = JSON.parse(RAWdata);
-    const defAcc = data.default_account;
-    data.accounts[defAcc].token = 'Bearer ' + token;
-    this.fs.writeFileSync(confFilePath, JSON.stringify(data, null, 2), (err) => {
+
+    if (mode === "fullInfoMode") {
+      instanceTitle = instanceCandidate;
+      token = tokenCandidate;
+    } else {
+      instanceTitle = data.default_account;
+      token = instanceCandidate;
+    }
+
+    if (!this._isTokenLooksCorrect(token)) {
+      console.log("Incorrect Token!")
+      return;
+    }
+
+    data.accounts[instanceTitle].token = 'Bearer ' + token;
+    this.fs.writeFileSync(this.confFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.error("Error can't write file!");
         console.error(err);
@@ -38,10 +56,10 @@ class Login {
     });
   }
 
-  async refreshToken(confFilePath, auth_type) {
+  async refreshToken() {
     const token = await this.getUserToken();
     if (!token) return;
-    this.setTokenToConfig(confFilePath, token);
+    this.setTokenToConfig(token);
   }
 
   async switchInstance(newAccount) {
@@ -72,6 +90,24 @@ class Login {
       }
     });
     console.log(`Переключено на инстанс ${newAccount}`);
+  }
+
+  async getInstanceList() {
+    let RAWdata = '';
+
+    try {
+      RAWdata = this.fs.readFileSync(this.confFilePath, { encoding: 'utf8', flag: 'r' });
+    } catch {
+      console.error(`Error! File ${this.confFilePath} not found!`);
+      return;
+    }
+    const data = Object.keys(JSON.parse(RAWdata).accounts);
+
+    return data;
+  }
+
+  _isTokenLooksCorrect(token) {
+    return token.length === 32;
   }
 }
 

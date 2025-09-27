@@ -1,15 +1,12 @@
-const confFilePath = './examples/.env';
-
+const account = require('../../SOAgent.conf').envFilePath;
 const TableHelper = require('../../src/app_layer/tableHelper.js');
-const th = new TableHelper.SOTableHelper(confFilePath);
+const th = new TableHelper.SOTableHelper(account);
 
 (async function () {
-  // const index = 85;
-
   const data = {
     choiceAttributes: {
-      title: `Choice State`,
-      column_name: `choice_state`,
+      title: `Choice State2`,
+      column_name: `choice_state2`,
       table_id: '175474838106586829',
       choice_type: '1',
       active: true,

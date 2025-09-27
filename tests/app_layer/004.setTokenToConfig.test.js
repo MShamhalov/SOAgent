@@ -7,7 +7,7 @@ beforeAll(async () => {});
 
 test('Set Token To Config', async () => {
   const token = await sl.getUserToken();
-  sl.setTokenToConfig(account, token);
+  sl.setTokenToConfig(token);
 
   RAWdata = fs.readFileSync(account, { encoding: 'utf8', flag: 'r' });
   const config = JSON.parse(RAWdata);

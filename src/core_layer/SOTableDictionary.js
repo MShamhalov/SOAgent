@@ -10,7 +10,7 @@ class TableDictionary {
     }
   }
 
-  set(key, value) {
+  set (key, value) {
     this.nameToId.set(key, value);
     this.idToName.set(value, key);
   }

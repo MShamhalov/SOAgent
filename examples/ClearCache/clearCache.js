@@ -1,6 +1,6 @@
 const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = './examples/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const account = require('../../SOAgent.conf').envFilePath;
+const sa = new SOAgent.SimpleOneAgentInterface(account);
 
 (async function () {
   console.log(await sa.clearCache());

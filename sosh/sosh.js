@@ -1,7 +1,9 @@
 const { sign } = require('crypto');
 const SOAgent = require('../src/core_layer/SOAgentInterface.js');
-const confFilePath = './examples/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const account = require('../SOAgent.conf').envFilePath;
+const sa = new SOAgent.SimpleOneAgentInterface(account);
+const SOLogin = require('../src/core_layer/SOLogin.js');
+const sl = new SOLogin.Login(account);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const readline = require('readline');
@@ -42,7 +44,7 @@ const commands = {
     console.log(result);
   },
 
-  async getSysIdsByDocId(args) {
+  async getRecordsByDocId(args) {
     const RawDocId = args[0];
   },
 
@@ -63,8 +65,6 @@ const commands = {
   },
 
   async switchInstance(args) {
-    const SOLogin = require('../src/core_layer/SOLogin.js');
-    const sl = new SOLogin.Login(confFilePath);
     await sl.switchInstance(args[0]);
     sa.reloadConfig();
   },
@@ -102,6 +102,29 @@ const commands = {
     console.log(result);
   },
 
+  async list() {
+    console.log(await sl.getInstanceList());
+  },
+
+  async setToken(args) {
+    let instance = '';
+    let token = '';
+
+    if (args[1]) {
+      instance = args[0];
+      token = args[1];
+      sl.setTokenToConfig(instance, token);
+    } else {
+      token = args[0];
+      sl.setTokenToConfig(token);
+    }
+    // sa.reloadConfig();
+  },
+
+  help() {
+    console.log(Object.keys(commands));
+  },
+
   // Aliases
   async gdi(args) {
     this.getDocId(args)
@@ -125,6 +148,14 @@ const commands = {
 
   async cc() {
     this.clearCache();
+  },
+  
+  st(args) {
+    this.setToken(args);
+  },
+
+  async i() {
+    this.instance();
   },
 
   exit() {

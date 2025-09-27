@@ -1,11 +1,11 @@
 const TableHelper = require('../../src/app_layer/tableHelper.js');
-const confFilePath = './examples/.env';
-const th = new TableHelper.SOTableHelper(confFilePath);
+const account = require('../../SOAgent.conf').envFilePath;
+const th = new TableHelper.SOTableHelper(account);
 
 (async function () {
   const options = {
-    title: 'TestTable4',
-    name: '',
+    title: 'TestTable5',
+    name: 'test_table_5',
     parent_id: '',
     is_vcs_enabled: false,
     is_audit: true,

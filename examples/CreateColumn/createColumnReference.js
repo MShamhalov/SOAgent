@@ -1,13 +1,12 @@
-const confFilePath = './examples/.env';
-
+const account = require('../../SOAgent.conf').envFilePath;
 const TableHelper = require('../../src/app_layer/tableHelper.js');
-const th = new TableHelper.SOTableHelper(confFilePath);
+const th = new TableHelper.SOTableHelper(account);
 
 const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(confFilePath);
+const sl = new SOLogin.Login(account);
 
 (async function () {
-  await sl.refreshToken(confFilePath);
+  await sl.refreshToken(account);
 
   const data = {
     active: true,

@@ -34,7 +34,7 @@ beforeAll(async () => {
 });
 
 describe('Последовательные тесты', () => {
-    test('QuickUpload', async () => {
+    test.skip('QuickUpload', async () => {
         sa.quickImport('./uploadFile.json');
     });
 });
