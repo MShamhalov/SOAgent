@@ -5,9 +5,7 @@ const sa = new SOAgent.SimpleOneAgentInterface(account);
 const SOLogin = require('../../src/core_layer/SOLogin.js');
 const sl = new SOLogin.Login(account);
 
-beforeAll(async () => {
-    sl.refreshToken(account);
-});
+beforeAll(async () => { });
 
 describe('Последовательные тесты', () => {
     let recordId;
@@ -19,7 +17,7 @@ describe('Последовательные тесты', () => {
 
     test('Insert record to instance', async () => {
         const insertObject = {
-            subject: 'Не работает беспроводная клавиатура Roxy M17',
+          subject: 'Не работает беспроводная клавиатура Roxy M17',
         };
         const insertRecord = await sa.insertRecord('task', insertObject);
 
@@ -41,8 +39,6 @@ describe('Последовательные тесты', () => {
 
     test('Delete Record on Instance', async () => {
         const deleteRecordString = await sa.deleteRecord('task', recordId);
-
-        const result = sa.getValue(deleteRecordString, 'description');
-        expect(['Records successfully deleted.', 'Записи успешно удалены.']).toContain(result);
+        expect(['Records successfully deleted.', 'Записи успешно удалены.']).toContain(deleteRecordString.description);
     });
 });

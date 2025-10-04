@@ -4,7 +4,7 @@ const confFilePath = require('../../SOAgent.conf').envFilePath;
 const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
 (async function () {
-  const filePath = './tmp/test_incident.json';
-  result = await sa.quickImport(filePath)
-  console.log(result.filename);
+  const filePath = './file.pdf';
+  const res = await sa.attachmentsUpload(filePath);
+  console.log(res.file_name);
 })();

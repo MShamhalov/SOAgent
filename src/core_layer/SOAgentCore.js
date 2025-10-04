@@ -41,7 +41,7 @@ class SOAgentCoreMethods {
   }
 
   getRequestHeader(tableName = null, sysId = null, action) {
-    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport', 'clearCache'];
+    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport', 'clearCache', 'attachmentsUpload'];
     const cstActions = ['attachFile'];
     let path = '';
     let method = 'POST';
@@ -94,13 +94,19 @@ class SOAgentCoreMethods {
         }
 
         case 'quickImport': {
-          path = `/v1/import/json/`;
+          path = `/v1/import/json`;
           break;
         }
 
         case 'clearCache': {
           path = `/v1/settings/flush-cache?access-token=`;
           method = 'GET';
+          break;
+        }
+
+        case 'attachmentsUpload': {
+          path = `/v1/attachments/upload/itsm_incident/173529721097742063`;
+          // contentType = 'multipart/form-data';
           break;
         }
 
@@ -260,101 +266,132 @@ class SOAgentCoreMethods {
     return functionResult;
   }
 
-  // async attachFileToRecord(https, conf, content) {
-  //   const options = this.getOptions(conf, null, null, 'attachFile');
-  //   const functionResult = new Promise((resolve, reject) => {
-  //     const request = https.request(options, (response) => {
-  //       let result = '';
-  //       response
-  //         .on('data', (data) => {
-  //           result += data;
-  //         })
-  //         .on('end', (er) => {
-  //           resolve(result);
-  //           request.end();
-  //         });
-  //     });
-  //     request.on('error', (error) => {
-  //       reject(error);
-  //       request.end();
-  //     });
-  //     request.write(content);
-  //     request.end();
-  //   });
-
-  //   return functionResult;
-  // }
-
   async runScript(https, conf, scriptContent) {
     const options = this.getOptions(conf, null, null, 'runScript');
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+          return;
+        }
+
         let result = '';
         response
-          .on('data', (data) => {
-            result += data;
+          .setEncoding('utf8')
+          .on('data', (chunk) => {
+            result += chunk;
           })
-          .on('end', (er) => {
+          .on('end', () => {
             resolve(result);
-            request.end();
           });
       });
+
       request.on('error', (error) => {
         reject(error);
-        request.end();
       });
+
+      request.setTimeout(15000, () => {
+        request.destroy(new Error('Request timeout'));
+      });
+
       request.write(scriptContent);
       request.end();
     });
-
-    return functionResult;
   }
 
   async quickImport(https, fs, conf, fileBaseName, filePath) {
-    const options = this.getOptions(conf, null, null, 'quickImport');
-    const boundary = `----WebKitFormBoundary${Math.random().toString(16).substr(2, 14)}`;
-    options.headers['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
+    return new Promise((resolve, reject) => {
+      const options = this.getOptions(conf, null, null, 'quickImport');
+      const boundary = `----WebKitFormBoundary${Math.random().toString(16).substr(2, 14)}`;
+      options.headers['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
+      const filePart = `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="file"; filename="${fileBaseName}"\r\n` +
+        `Content-Type: application/json\r\n\r\n`;
+      const bodyEnd = `\r\n--${boundary}--\r\n`;
 
-    const filePart = `--${boundary}\r\n` +
-      `Content-Disposition: form-data; name="file"; filename="${fileBaseName}"\r\n` +
-      `Content-Type: application/json\r\n\r\n`;
+      const req = https.request(options, (res) => {
+        let responseData = Buffer.alloc(0);
+        res.on('data', (chunk) => {
+          responseData = Buffer.concat([responseData, chunk]);
+        });
 
-    const bodyEnd = `\r\n--${boundary}--\r\n`;
-
-    const req = https.request(options, (res) => {
-      let responseData = Buffer.alloc(0);
-      res.on('data', (chunk) => {
-        responseData = Buffer.concat([responseData, chunk]);
+        res.on('end', () => {
+          try {
+            const jsonResponse = responseData.toString();
+            resolve(jsonResponse);
+          } catch (e) {
+            console.error(e);
+          }
+        });
       });
 
-      res.on('end', () => {
-        try {
-          const jsonResponse = JSON.parse(responseData.toString());
-          console.log('Server response:', jsonResponse);
-        } catch (e) {
-          console.log('Raw response:', responseData.toString());
-        }
+      req.on('error', (error) => {
+        console.error('Request error:', error);
+        reject(error); // Возвращаем ошибку
+      });
+
+      req.write(filePart);
+
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.on('data', (chunk) => {
+        req.write(chunk);
+      });
+
+      fileStream.on('end', () => {
+        req.end(bodyEnd);
+      });
+
+      fileStream.on('error', (err) => {
+        console.error('File read error:', err);
+        reject(err);
+        req.destroy(err);
       });
     });
+  }
 
-    req.on('error', (error) => {
-      console.error('Request error:', error);
-    });
+  async attachmentsUpload(https, fs, conf, fileBaseName, filePath) {
+    return new Promise((resolve, reject) => {
+      const options = this.getOptions(conf, null, null, 'attachmentsUpload');
+      const req = https.request(options, function (res) {
+        const chunks = [];
 
-    req.write(filePart);
+        res.on("data", function (chunk) {
+          chunks.push(chunk);
+        });
 
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.on('data', (chunk) => {
-      req.write(chunk);
-    });
+        res.on("end", function (chunk) {
+          try {
+            const body = Buffer.concat(chunks);
+            const jsonResponse = body.toString();
+            resolve(jsonResponse);
+          } catch (e) {
+            console.error(e);
+          }
+        });
 
-    fileStream.on('end', () => {
-      req.end(bodyEnd);
-    });
+        res.on("error", function (error) {
+          console.error(error);
+        });
+      });
 
-    fileStream.on('error', (err) => {
-      console.error('File read error:', err);
-      req.destroy(err);
+      const boundary = `----WebKitFormBoundary${Math.random().toString(16).substr(2, 14)}`;
+      const header = Buffer.from(
+        `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="files[]"; filename="${fileBaseName}"\r\n` +
+        `Content-Type: application/octet-stream\r\n\r\n`,
+        'utf-8'
+      );
+
+      const footer = Buffer.from(`\r\n--${boundary}--`, 'utf-8');
+      const fileData = fs.readFileSync(filePath);
+      const postData = Buffer.concat([header, fileData, footer]);
+
+      req.setHeader('content-type', `multipart/form-data; boundary=${boundary}`);
+      req.setHeader('Content-Length', postData.length);
+
+      req.write(postData);
+      req.end();
     });
   }
 
@@ -392,6 +429,10 @@ class SOAgentCoreMethods {
     }
 
     return result;
+  }
+
+  _dbgBufferToHexString(buffer) {
+    return buffer.toString('hex');
   }
 }
 

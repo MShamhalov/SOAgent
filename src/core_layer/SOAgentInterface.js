@@ -31,7 +31,7 @@ class SimpleOneAgentInterface {
         this.errorProcessing(result);
         return;
       }
-      return result
+      return result.data;
     } catch (error) {
       console.error("Error query record:", error.message);
       throw error;
@@ -50,7 +50,7 @@ class SimpleOneAgentInterface {
         this.errorProcessing(result);
         return;
       }
-      return result;
+      return result.data;
     } catch (error) {
       console.error("Error query record:", error.message);
       throw error;
@@ -77,7 +77,7 @@ class SimpleOneAgentInterface {
         this.errorProcessing(result);
         return;
       }
-      return result;
+      return result.data;
     } catch (error) {
       console.error("Error updating record:", error.message);
       throw error;
@@ -85,7 +85,18 @@ class SimpleOneAgentInterface {
   }
 
   async deleteRecord(tableName, sysId) {
-    return await this.core.deleteRecord(this.https, this.conf, tableName, sysId);
+    try {
+      const RAWresult = await this.core.deleteRecord(this.https, this.conf, tableName, sysId);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        this.errorProcessing(result);
+        return;
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Error updating record:", error.message);
+      throw error;
+    }
   }
 
   async runScript(scriptContent) {
@@ -109,11 +120,21 @@ class SimpleOneAgentInterface {
 
   async quickImport(filePath) {
     const fileBaseName = this.path.basename(filePath);
-    return this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
+    const resultRAW = await this.core.quickImport(this.https, this.fs, this.conf, fileBaseName, filePath);
+
+    return JSON.parse(resultRAW)?.data;
+  }
+
+  async attachmentsUpload(filePath) {
+    const fileBaseName = this.path.basename(filePath);
+    const resultRAW = await this.core.attachmentsUpload(this.https, this.fs, this.conf, fileBaseName, filePath);
+
+    return JSON.parse(resultRAW)?.data[0];
   }
 
   async clearCache() {
-    return await this.core.clearCache(this.https, this.conf);
+    const resultRAW = await this.core.clearCache(this.https, this.conf);
+    return JSON.parse(resultRAW);
   }
 
   getValue(resultString, fieldName, index = 0) {
@@ -134,7 +155,7 @@ class SimpleOneAgentInterface {
 
       return String(result);
     } else {
-      return resultString.data[index][fieldName];
+      return resultString[index][fieldName];
     }
   }
 
@@ -198,15 +219,15 @@ class SimpleOneAgentInterface {
 }
 */
 
-errorProcessing(response) {
-  if (response.status == '401') {
-    console.error(`Request status: ${response.status}, Error message: ${response.message}`);
+  errorProcessing(response) {
+    if (response.status == '401') {
+      console.error(`Request status: ${response.status}, Error message: ${response.message}`);
+      return;
+    }
+    const combineErrorMessage = response.errors.map(error => error.message).join('; \n');
+    console.error(`Request status: ${response.status}, Error message: ${combineErrorMessage}`);
     return;
   }
-  const combineErrorMessage = response.errors.map(error => error.message).join('; \n');
-  console.error(`Request status: ${response.status}, Error message: ${combineErrorMessage}`);
-  return;
-}
 }
 
 module.exports = { SimpleOneAgentInterface };

@@ -6,7 +6,7 @@
 // const sl = new SOLogin.Login(confFilePath);
 
 beforeAll(async () => {
-    sl.refreshToken(confFilePath);
+
 });
 
 describe('Последовательные тесты', () => {
