@@ -41,8 +41,22 @@ class SOAgentCoreMethods {
   }
 
   getRequestHeader(tableName = null, sysId = null, action) {
-    const stdActions = ['auth_basic', 'auth_sso', 'insert', 'read', 'query', 'update', 'delete', 'runScript', 'quickImport', 'clearCache', 'attachmentsUpload'];
-    const cstActions = ['attachFile'];
+    const stdActions = [
+      'auth_basic', 
+      'auth_sso', 
+      'insert', 
+      'read', 
+      'query', 
+      'update', 
+      'delete', 
+      'runScript', 
+      'quickImport', 
+      'clearCache', 
+      'attachmentsUpload'
+    ];
+    const cstActions = [
+      'attachFile'
+    ];
     let path = '';
     let method = 'POST';
     let contentType = 'application/json';
@@ -106,7 +120,6 @@ class SOAgentCoreMethods {
 
         case 'attachmentsUpload': {
           path = `/v1/attachments/upload/${tableName}/${sysId}`;
-          // contentType = 'multipart/form-data';
           break;
         }
 
@@ -129,7 +142,8 @@ class SOAgentCoreMethods {
     const options = this.getOptions(conf, null, null, auth);
     delete options.headers.Authorization;
     const obj = `{"username": "${conf.login}", "password": "${conf.password}"}`;
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -148,13 +162,12 @@ class SOAgentCoreMethods {
       request.write(obj);
       request.end();
     });
-
-    return functionResult;
   }
 
   async insertRecord(https, conf, tableName, obj) {
     const options = this.getOptions(conf, tableName, null, 'insert');
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -173,13 +186,12 @@ class SOAgentCoreMethods {
       request.write(obj);
       request.end();
     });
-
-    return functionResult;
   }
 
   async readRecord(https, conf, tableName, sysId) {
     const options = this.getOptions(conf, tableName, sysId, 'read');
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -193,13 +205,12 @@ class SOAgentCoreMethods {
       });
       request.end();
     });
-
-    return functionResult;
   }
 
   async queryRecord(https, conf, tableName, queryParams) {
     const options = this.getOptions(conf, tableName, null, 'query', queryParams);
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -217,13 +228,12 @@ class SOAgentCoreMethods {
       });
       request.end();
     });
-
-    return functionResult;
   }
 
   async updateRecord(https, conf, tableName, sysId, obj) {
     const options = this.getOptions(conf, tableName, sysId, 'update');
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -242,13 +252,12 @@ class SOAgentCoreMethods {
       request.write(obj);
       request.end();
     });
-
-    return functionResult;
   }
 
   async deleteRecord(https, conf, tableName, sysId) {
     const options = this.getOptions(conf, tableName, sysId, 'delete');
-    const functionResult = new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -262,8 +271,6 @@ class SOAgentCoreMethods {
       });
       request.end();
     });
-
-    return functionResult;
   }
 
   async runScript(https, conf, scriptContent) {
@@ -301,8 +308,9 @@ class SOAgentCoreMethods {
   }
 
   async quickImport(https, fs, conf, fileBaseName, filePath) {
+    const options = this.getOptions(conf, null, null, 'quickImport');
+
     return new Promise((resolve, reject) => {
-      const options = this.getOptions(conf, null, null, 'quickImport');
       const boundary = `----WebKitFormBoundary${Math.random().toString(16).substr(2, 14)}`;
       options.headers['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
       const filePart = `--${boundary}\r\n` +
@@ -351,8 +359,9 @@ class SOAgentCoreMethods {
   }
 
   async attachmentsUpload(https, fs, conf, fileBaseName, filePath, tableName, recordId) {
+    const options = this.getOptions(conf, tableName, recordId, 'attachmentsUpload');
+
     return new Promise((resolve, reject) => {
-      const options = this.getOptions(conf, tableName, recordId, 'attachmentsUpload');
       const req = https.request(options, function (res) {
         const chunks = [];
 
@@ -400,7 +409,7 @@ class SOAgentCoreMethods {
     options.path += options.headers.Authorization.slice(7);
     delete options.headers;
 
-    const functionResult = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
         let result = '';
         response
@@ -418,8 +427,6 @@ class SOAgentCoreMethods {
       });
       request.end();
     });
-
-    return functionResult;
   }
 
   addBearerToToken(tokenCandidate) {
