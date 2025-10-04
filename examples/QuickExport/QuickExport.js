@@ -14,7 +14,6 @@ const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
     ]);
     const table_name = 'sys_db_table';
     const getRecordsByQuery = await sa.queryRecord(table_name, queryParams);
-    // const recordId = sa.getValue(getRecordsByQuery, 'sys_id');
-    // console.log(getRecordsByQuery);
+
     sa.saveJSONToFile('file.json', getRecordsByQuery.data, table_name, true);
 })();

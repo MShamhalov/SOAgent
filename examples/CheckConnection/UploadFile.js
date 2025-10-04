@@ -5,6 +5,6 @@ const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
 
 (async function () {
   const filePath = './file.pdf';
-  const res = await sa.attachmentsUpload(filePath);
-  console.log(res.file_name);
+  const res = await sa.attachmentsUpload(filePath, 'task', '175959346800487422');
+  console.log(res);
 })();

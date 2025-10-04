@@ -105,7 +105,7 @@ class SOAgentCoreMethods {
         }
 
         case 'attachmentsUpload': {
-          path = `/v1/attachments/upload/itsm_incident/173529721097742063`;
+          path = `/v1/attachments/upload/${tableName}/${sysId}`;
           // contentType = 'multipart/form-data';
           break;
         }
@@ -350,9 +350,9 @@ class SOAgentCoreMethods {
     });
   }
 
-  async attachmentsUpload(https, fs, conf, fileBaseName, filePath) {
+  async attachmentsUpload(https, fs, conf, fileBaseName, filePath, tableName, recordId) {
     return new Promise((resolve, reject) => {
-      const options = this.getOptions(conf, null, null, 'attachmentsUpload');
+      const options = this.getOptions(conf, tableName, recordId, 'attachmentsUpload');
       const req = https.request(options, function (res) {
         const chunks = [];
 

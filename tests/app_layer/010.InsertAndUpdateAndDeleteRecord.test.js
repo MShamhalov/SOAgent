@@ -5,8 +5,6 @@ const sa = new SOAgent.SimpleOneAgentInterface(account);
 const SOLogin = require('../../src/core_layer/SOLogin.js');
 const sl = new SOLogin.Login(account);
 
-beforeAll(async () => { });
-
 describe('Последовательные тесты', () => {
   let recordId = '';
 

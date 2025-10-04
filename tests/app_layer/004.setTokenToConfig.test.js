@@ -3,8 +3,6 @@ const SOLogin = require('../../src/core_layer/SOLogin.js');
 const account = require('../../SOAgent.conf').envFilePath;
 const sl = new SOLogin.Login(account);
 
-beforeAll(async () => {});
-
 test('Set Token To Config', async () => {
   const token = await sl.getUserToken();
   sl.setTokenToConfig(token);

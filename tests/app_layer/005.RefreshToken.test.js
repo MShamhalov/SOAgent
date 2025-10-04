@@ -3,8 +3,6 @@ const account = require('../../SOAgent.conf').envFilePath;
 const sl = new SOLogin.Login(account);
 const fs = require('fs');
 
-beforeAll(async () => {});
-
 test('Set Token To Config', async () => {
   sl.refreshToken(account);
   RAWdata = fs.readFileSync(account, { encoding: 'utf8', flag: 'r' });

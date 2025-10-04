@@ -2,8 +2,6 @@ const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
 const account = require('../../SOAgent.conf').envFilePath;
 const sa = new SOAgent.SimpleOneAgentInterface(account);
 
-beforeAll(async () => { });
-
 describe('Последовательные тесты', () => {
   let recordId = '';
 

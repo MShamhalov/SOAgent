@@ -2,9 +2,6 @@ const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
 const account = require('../../SOAgent.conf').envFilePath;
 const sa = new SOAgent.SimpleOneAgentInterface(account);
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(account);
-
 const fs = require('fs');
 
 beforeAll(async () => {
@@ -69,5 +66,4 @@ describe('Последовательные тесты', () => {
         const testAfterDelete = await sa.queryRecord('task', queryAfterDelete);
         expect(testAfterDelete.length).toEqual(0);
     });
-
 });

@@ -125,11 +125,11 @@ class SimpleOneAgentInterface {
     return JSON.parse(resultRAW)?.data;
   }
 
-  async attachmentsUpload(filePath) {
+  async attachmentsUpload(filePath, tableName, recordId) {
     const fileBaseName = this.path.basename(filePath);
-    const resultRAW = await this.core.attachmentsUpload(this.https, this.fs, this.conf, fileBaseName, filePath);
+    const resultRAW = await this.core.attachmentsUpload(this.https, this.fs, this.conf, fileBaseName, filePath, tableName, recordId);
 
-    return JSON.parse(resultRAW)?.data[0];
+    return JSON.parse(resultRAW).data;
   }
 
   async clearCache() {
