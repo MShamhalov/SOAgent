@@ -189,7 +189,7 @@ class SimpleOneAgentInterface {
   }
 
   removeDebugPrefix(str) {
-    return str.replace(/^(Debug|Отладка):\s*/i, '');
+    return str.replace(/^(Debug|Отладка):\s*/ig, '');
   }
 
   /*
