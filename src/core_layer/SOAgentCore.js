@@ -278,11 +278,6 @@ class SOAgentCoreMethods {
 
     return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {
-        if (response.statusCode < 200 || response.statusCode >= 300) {
-          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
-          return;
-        }
-
         let result = '';
         response
           .setEncoding('utf8')

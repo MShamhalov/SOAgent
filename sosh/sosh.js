@@ -57,8 +57,9 @@ const commands = {
   },
 
   async instance() {
+    sa.reloadConfig();
     const SOHelper = require('../src/app_layer/soIncludes.js');
-    script = SOHelper.getInstance();
+    const script = SOHelper.getInstance();
     const result = await sa.runScript(script);
     console.log("Local File Path: " + sa.conf.instance);
     console.log("simple.instance.uri: " + result);
