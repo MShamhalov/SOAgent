@@ -1,15 +1,16 @@
-const fs = require('fs');
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
+
+const sa = new SOAgentInterface(envFilePath);
+
 import { $ } from 'bun';
 
 (async function () {
   const args = process.argv.slice(2);
   const scriptFilePath = args[0];
-  let fileContent = fs.readFileSync(scriptFilePath, 'utf-8');
+  let fileContent = await Bun.file(scriptFilePath).text();
   
-  switch (readFirstLineSync(scriptFilePath)) {
+  switch (await readFirstLineSync(scriptFilePath)) {
     case 'soagent': {
       await $`bun ${scriptFilePath}`;
       break;
@@ -21,7 +22,8 @@ import { $ } from 'bun';
     }
 
     case 'so_script_wp': {
-      const precondition = fs.readFileSync('./examples/RunScript/precondition.js', 'utf-8');
+      const precondition = await Bun.file('./examples/RunScript/precondition.js').text();
+      
       fileContent = precondition + fileContent;
       const taskTableSysId = await sa.runScript(fileContent);
       console.log(taskTableSysId);
@@ -36,9 +38,9 @@ import { $ } from 'bun';
   }
 })();
 
-function readFirstLineSync(filePath) {
+async function readFirstLineSync(filePath) {
   try {
-    const syncContent = fs.readFileSync(filePath, 'utf8');
+    const syncContent = await Bun.file(filePath).text();
     const executionEnviroment = syncContent.split('\n')[0];
     const envType = executionEnviroment.match(/EE:(\w+)/)?.[1];
 

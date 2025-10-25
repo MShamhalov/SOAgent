@@ -1,8 +1,7 @@
-const fs = require('fs');
-const account = require('../../SOAgent.conf').envFilePath;
+const { envFilePath } = require('#conf');
 
 test('Read Local Config File', async () => {
-  RAWdata = fs.readFileSync(account, { encoding: 'utf8', flag: 'r' });
+  const RAWdata = await Bun.file(envFilePath).text();
   const config = JSON.parse(RAWdata);
 
   expect(config.default_account).toBeTruthy();

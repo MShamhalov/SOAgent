@@ -1,8 +1,9 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(account);
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
 
-describe('Последовательные тесты', () => {
+const sa = new SOAgentInterface(envFilePath);
+
+describe('Query And Read Record', () => {
   let recordId = '';
 
   test('Query record from instance', async () => {

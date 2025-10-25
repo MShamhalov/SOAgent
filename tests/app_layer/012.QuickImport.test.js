@@ -1,8 +1,7 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(account);
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
 
-const fs = require('fs');
+const sa = new SOAgentInterface(envFilePath);
 
 beforeAll(async () => {
     const uploadContent = {
@@ -25,7 +24,7 @@ beforeAll(async () => {
         ]
     };
 
-    fs.writeFileSync("./uploadFile.json", JSON.stringify(uploadContent), "utf-8", "as", (error => { if (error) throw error; }));
+    await Bun.write("./uploadFile.json", JSON.stringify(uploadContent));
 });
 
 describe('Последовательные тесты', () => {

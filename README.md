@@ -1,13 +1,10 @@
 ### Основные функции библиотеки:
 - Выполнение CRUD операций c записями таблиц в SimpleOne
-- Выполнение запросов в таблицы SimpleOne и получение результатов (sys_id)*
-- Загрузка вложений в SimpleOne*
-- Запуск серверных скриптов на стороне SimpleOne.
+- Выполнение запросов в таблицы SimpleOne и получение результатов
+- Загрузка вложений в SimpleOne
+- Запуск серверных скриптов на стороне SimpleOne
 - Доступный API с документацией
-- Поддержка протокола https 
-- В библиотеке применяется только стандартная библиотека NodeJS, без использования сторонних зависимостей (npm)
-- В библиотеке используется асинхронное взаимодействия (Promise), что позволяет выполнять следующие операции только после успешного завершения предыдущих, и при этом избегать вложенных друг в друга callback-функций (callback hell).\
-\* Осуществляется только при установке дополнительного sop-файла 'ShMG SOAgent RestAPI Pack.sop' для приложения ITSM
+- В библиотеке применяется только стандартная библиотека среды Bun, без использования сторонних зависимостей (npm)
 
 ### Первые шаги
 Для начала следует корректно заполнить поля в конфигурационном файле SOAgent.conf.
@@ -15,19 +12,43 @@
 Вручную следует указывать 
 - Протокол
 - Адрес инстанса.
-- Логин
-- Пароль
+- Логин (необязательно)
+- Пароль (необязательно)
+- Токен
 
 ```json
 {
-  "protocol": "https",
-  "instance": "instance.simpleone.ru",
-  "login": "admin",
-  "password": "password",
-  "token": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  "default_account": "firstInstance",
+  "accounts": {
+    "firstInstance": {
+      "protocol": "https",
+      "instance": "instance1.simpleone.ru",
+      "login": "admin",
+      "password": "password",
+      "token": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "secondInstance": {
+      "protocol": "https",
+      "instance": "instance2.simpleone.ru",
+      "login": "admin",
+      "password": "password",
+      "token": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  }
 }
 ```
-Для работы с удаленным инстансом обязательно требуется иметь сессионный токен пользователя. Для получения токена пользователя можно воспользоваться автоматизированным либо ручным способом получения токена. Автоматизированный метод подразумевает использование методов getUserToken() и setTokenToConfig(). Ручное получение токена осуществляется так: Для начала надо вхойти в SimpleOne от имени учетной записи с правами администратора, перейти в браузере в режим разработчика (Клавиша F12) и набрать в консоли браузера 's_user.accessToken' в ответ в браузере высветится токен. Внимание! При внесении токена вручную в конфигурационный файл, надо перед ним установить приставку - "Bearer" с пробелом (Чтобы получилось: "token": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",). 
+Для работы с удаленным инстансом обязательно требуется иметь сессионный токен пользователя. Для получения токена пользователя можно воспользоваться автоматизированным либо ручным способом получения токена. Автоматизированный метод подразумевает использование методов getUserToken() и setTokenToConfig(). Автоматизированный метод не работает в среде в которой применяется двуфакторная авторизация. Ручное получение токена осуществляется следующим образом: Для начала надо вхойти в SimpleOne от имени учетной записи с правами администратора, перейти в браузере в режим разработчика (Клавиша F12) и набрать в консоли браузера 's_user.accessToken' в ответ в браузере высветится токен. 
+
+Вам также может потребоваться в корне своего проекта создать файл package.json и настроить в нем секцию import для того чтобы в дальнейшем использовать в своих скриптах алиасы вместо полных путей к файлам библиотеки.   
+```json
+  "imports": {
+    "#SOAgentCore": "./soagent/src/core_layer/SOAgentCore.js",
+    "#SOAgentInterface": "./soagent/src/core_layer/SOAgentInterface.js",
+    "#SOAgentLogin": "./soagent/src/core_layer/SOAgentLogin.js",
+    "#SOAgentTableDictionary": "./soagent/src/core_layer/SOAgentTableDictionary",
+    "#conf": "./soagent/SOAgent.conf"
+  }
+```
 
 
 ### Скелет скрипта
@@ -155,18 +176,13 @@ const DocId = await sa.getDocIdValue(tableName, sysId);
 console.log(DocId);
 ```
 
-### Загрузка файла на инстанс SimpleOne*
-Есть ограничения на размер файла который может быть загружен таким образом (ок. 65МБ).
+### Загрузка файла на инстанс SimpleOne
 ```js
-const tableName = 'itsm_incident';
-const sysId = '171195597496013110';
-const DocId = await sa.getDocIdValue(tableName, sysId);
+const filePath = './attachment/file.pdf';
+const recordId = '170609176898389495';
 
-const filePath = './SimpleOne/SOAgent/attachs/video2.mkv';
-const attachId = await sa.attachFileToRecord(DocId, filePath);
-console.log(attachId);
+await sa.attachmentsUpload(filePath, 'task', recordId);
 ```
-\* Осуществляется только при установке дополнительного sop-файла 'ShMG SOAgent RestAPI Pack.sop' для приложения ITSM
 
 ### Поиск сущности по известному sys_id
 ```js

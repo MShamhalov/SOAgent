@@ -1,4 +1,33 @@
-class SimpleOneAgentInterface {
+/**
+ *                               Лицензия MIT                              
+ *                                                                         
+ *        Авторское право «2025» «Шамхалов Магомед Гусенович»              
+ *                                                                         
+ *  Данная лицензия разрешает лицам, получившим копию данного программного 
+ * обеспечения  и  сопутствующей  документации  (в  дальнейшем  именуемыми 
+ * «Программное   Обеспечение»),   безвозмездно  использовать  Программное 
+ * Обеспечение   без   ограничений,   включая   неограниченное   право  на 
+ * использование,    копирование,    изменение,     слияние,   публикацию, 
+ * распространение,  сублицензирование  и/или  продажу  копий Программного 
+ * Обеспечения,   а   также   лицам,   которым    предоставляется   данное 
+ * Программное Обеспечение, при соблюдении следующих условий:              
+ *                                                                         
+ *  Указанное   выше  уведомление  об  авторском  праве  и  данные условия 
+ * должны  быть  включены  во  все  копии  или   значимые   части  данного 
+ * Программного Обеспечения.                                               
+ *                                                                         
+ *  ДАННОЕ  ПРОГРАММНОЕ  ОБЕСПЕЧЕНИЕ   ПРЕДОСТАВЛЯЕТСЯ  «КАК  ЕСТЬ»,   БЕЗ 
+ * КАКИХ-ЛИБО  ГАРАНТИЙ,  ЯВНО  ВЫРАЖЕННЫХ  ИЛИ  ПОДРАЗУМЕВАЕМЫХ,  ВКЛЮЧАЯ 
+ * ГАРАНТИИ   ТОВАРНОЙ   ПРИГОДНОСТИ,   СООТВЕТСТВИЯ  ПО  ЕГО  КОНКРЕТНОМУ 
+ * НАЗНАЧЕНИЮ   И   ОТСУТСТВИЯ  НАРУШЕНИЙ,  НО  НЕ  ОГРАНИЧИВАЯСЬ  ИМИ. НИ 
+ * В  КАКОМ  СЛУЧАЕ  АВТОРЫ  ИЛИ  ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ 
+ * ПО  КАКИМ-ЛИБО  ИСКАМ,  ЗА  УЩЕРБ  ИЛИ  ПО   ИНЫМ   ТРЕБОВАНИЯМ,  В ТОМ 
+ * ЧИСЛЕ,   ПРИ   ДЕЙСТВИИ   КОНТРАКТА,   ДЕЛИКТЕ   ИЛИ   ИНОЙ   СИТУАЦИИ, 
+ * ВОЗНИКШИМ   ИЗ-ЗА   ИСПОЛЬЗОВАНИЯ  ПРОГРАММНОГО  ОБЕСПЕЧЕНИЯ  ИЛИ  ИНЫХ 
+ * ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.                                    
+ */
+
+class SOAgentInterface {
   constructor(confFilePath) {
     this.https = require('https');
     this.fs = require('fs');
@@ -134,7 +163,7 @@ class SimpleOneAgentInterface {
 
   async clearCache() {
     const resultRAW = await this.core.clearCache(this.https, this.conf);
-    return JSON.parse(resultRAW);
+    return JSON.parse(resultRAW).status;
   }
 
   getValue(resultString, fieldName, index = 0) {
@@ -167,7 +196,7 @@ class SimpleOneAgentInterface {
   }
 
   async getDocId(tableNameOrId, recordSysId) {
-    const TableDictionary = require('./SOTableDictionary.js');
+    const TableDictionary = require('./SOAgentTableDictionary.js');
     const tableDict = new TableDictionary();
     const sysIdPattern = /\d{18}/;
     const dicTableSysId = sysIdPattern.test(tableNameOrId) ? tableNameOrId : tableDict.getTableId(tableNameOrId);
@@ -192,33 +221,6 @@ class SimpleOneAgentInterface {
     return str.replace(/^(Debug|Отладка):\s*/ig, '');
   }
 
-  /*
-  attachFileToRecord(docId, filePath) {
-    const fileName = path.basename(filePath);
-    const fileExt = path.extname(filePath);
-    const mimeType = this.getMIMEtype(fileExt);
-    const fileContent = fs.readFileSync(filePath, { encoding: 'base64' });
-
-    const contentObject = {
-      recordDocId: docId,
-      fileName: fileName,
-      fileType: mimeType,
-      fileContent: fileContent,
-    };
-
-    return core.attachFileToRecord(https, conf, JSON.stringify(contentObject));
-  }
-
-  getRecordUrlBySysId(objSysId) {
-    const scriptStr = SOAgentIncludes.IGetRecordUrlBySysId(conf.instance, objSysId);
-    const content = JSON.stringify({ script: scriptStr });
-
-    return core.runScript(https, conf, content);
-  }
-
-}
-*/
-
   errorProcessing(response) {
     if (response.status == '401') {
       console.error(`Request status: ${response.status}, Error message: ${response.message}`);
@@ -230,4 +232,4 @@ class SimpleOneAgentInterface {
   }
 }
 
-module.exports = { SimpleOneAgentInterface };
+module.exports = { SOAgentInterface };

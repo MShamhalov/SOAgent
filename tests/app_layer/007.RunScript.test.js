@@ -1,8 +1,9 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(account);
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
 
-describe('Последовательные тесты', () => {
+const sa = new SOAgentInterface(envFilePath);
+
+describe('RunScript Tests', () => {
     let recordId;
     getTableIdScript = `
         const table = new SimpleRecord('sys_db_table');

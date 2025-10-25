@@ -1,11 +1,9 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(account);
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(account);
+const sa = new SOAgentInterface(envFilePath);
 
-describe('Последовательные тесты', () => {
+describe('Insert Update Delete', () => {
   let recordId = '';
 
   test('Insert record to instance', async () => {

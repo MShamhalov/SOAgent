@@ -1,6 +1,7 @@
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sl = new SOLogin.Login(account);
+const { envFilePath } = require('#conf');
+const { SOAgentLogin } = require('#SOAgentLogin');
+
+const sl = new SOAgentLogin(envFilePath);
 
 test('Get New Token', async () => {
   const token = await sl.getUserToken();

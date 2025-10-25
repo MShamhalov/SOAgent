@@ -1,20 +1,12 @@
 {
-  "name": "so_agent",
-  "version": "0.8.3",
+  "name": "SOAgent",
+  "version": "0.8.5",
   "main": "src/index.js",
-  "scripts": {
-    "test": "jest --runInBand"
-  },
-  "jest": {
-    "testMatch": [
-      "**/tests/**/*.[jt]s?(x)",
-      "**/?(*.)+(test).[jt]s?(x)"
-    ]
-  },
-  "devDependencies": {
-    "jest": "^29.7.0"
-  },
-  "dependencies": {
-    "sqlite3": "^5.1.7"
+  "imports": {
+    "#SOAgentCore": "./src/core_layer/SOAgentCore.js",
+    "#SOAgentInterface": "./src/core_layer/SOAgentInterface.js",
+    "#SOAgentLogin": "./src/core_layer/SOAgentLogin.js",
+    "#SOAgentTableDictionary": "./src/core_layer/SOAgentTableDictionary",
+    "#conf": "./SOAgent.conf"
   }
 }

@@ -1,9 +1,39 @@
+/**
+ *                               Лицензия MIT                              
+ *                                                                         
+ *        Авторское право «2025» «Шамхалов Магомед Гусенович»              
+ *                                                                         
+ *  Данная лицензия разрешает лицам, получившим копию данного программного 
+ * обеспечения  и  сопутствующей  документации  (в  дальнейшем  именуемыми 
+ * «Программное   Обеспечение»),   безвозмездно  использовать  Программное 
+ * Обеспечение   без   ограничений,   включая   неограниченное   право  на 
+ * использование,    копирование,    изменение,     слияние,   публикацию, 
+ * распространение,  сублицензирование  и/или  продажу  копий Программного 
+ * Обеспечения,   а   также   лицам,   которым    предоставляется   данное 
+ * Программное Обеспечение, при соблюдении следующих условий:              
+ *                                                                         
+ *  Указанное   выше  уведомление  об  авторском  праве  и  данные условия 
+ * должны  быть  включены  во  все  копии  или   значимые   части  данного 
+ * Программного Обеспечения.                                               
+ *                                                                         
+ *  ДАННОЕ  ПРОГРАММНОЕ  ОБЕСПЕЧЕНИЕ   ПРЕДОСТАВЛЯЕТСЯ  «КАК  ЕСТЬ»,   БЕЗ 
+ * КАКИХ-ЛИБО  ГАРАНТИЙ,  ЯВНО  ВЫРАЖЕННЫХ  ИЛИ  ПОДРАЗУМЕВАЕМЫХ,  ВКЛЮЧАЯ 
+ * ГАРАНТИИ   ТОВАРНОЙ   ПРИГОДНОСТИ,   СООТВЕТСТВИЯ  ПО  ЕГО  КОНКРЕТНОМУ 
+ * НАЗНАЧЕНИЮ   И   ОТСУТСТВИЯ  НАРУШЕНИЙ,  НО  НЕ  ОГРАНИЧИВАЯСЬ  ИМИ. НИ 
+ * В  КАКОМ  СЛУЧАЕ  АВТОРЫ  ИЛИ  ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ 
+ * ПО  КАКИМ-ЛИБО  ИСКАМ,  ЗА  УЩЕРБ  ИЛИ  ПО   ИНЫМ   ТРЕБОВАНИЯМ,  В ТОМ 
+ * ЧИСЛЕ,   ПРИ   ДЕЙСТВИИ   КОНТРАКТА,   ДЕЛИКТЕ   ИЛИ   ИНОЙ   СИТУАЦИИ, 
+ * ВОЗНИКШИМ   ИЗ-ЗА   ИСПОЛЬЗОВАНИЯ  ПРОГРАММНОГО  ОБЕСПЕЧЕНИЯ  ИЛИ  ИНЫХ 
+ * ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.                                    
+ */
+
+const { envFilePath } = require('#conf');
+const { SOAgentLogin } = require('#SOAgentLogin');
+const { SOAgentInterface } = require('#SOAgentInterface');
 const { sign } = require('crypto');
-const SOAgent = require('../src/core_layer/SOAgentInterface.js');
-const account = require('../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(account);
-const SOLogin = require('../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(account);
+
+const sl = new SOAgentLogin(envFilePath);
+const sa = new SOAgentInterface(envFilePath);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const readline = require('readline');
@@ -16,9 +46,9 @@ const commands = {
   async getTableId(args) {
     const tableName = args[0];
     const fileContent = `
-    const table = new SimpleRecord('sys_db_table');
-    table.get('name', '${tableName}');
-    ss.debug(table.getValue('sys_id'));
+      const table = new SimpleRecord('sys_db_table');
+      table.get('name', '${tableName}');
+      ss.debug(table.getValue('sys_id'));
     `;
 
     const result = await sa.runScript(fileContent);
@@ -28,9 +58,9 @@ const commands = {
   async getTableName(args) {
     const tableId = args[0];
     const fileContent = `
-    const table = new SimpleRecord('sys_db_table');
-    table.get('${tableId}');
-    ss.debug(table.getValue('name'));
+      const table = new SimpleRecord('sys_db_table');
+      table.get('${tableId}');
+      ss.debug(table.getValue('name'));
     `;
 
     const result = await sa.runScript(fileContent);
@@ -66,7 +96,9 @@ const commands = {
   },
 
   async switchInstance(args) {
-    await sl.switchInstance(args[0]);
+    if (args[0]) {
+      await sl.switchInstance(args[0]);
+    }
     sa.reloadConfig();
   },
 
@@ -119,7 +151,7 @@ const commands = {
       token = args[0];
       sl.setTokenToConfig(token);
     }
-    // sa.reloadConfig();
+    sa.reloadConfig();
   },
 
   help() {
@@ -164,7 +196,6 @@ const commands = {
     process.exit(0);
   }
 };
-
 
 const rl = readline.createInterface({
   input: process.stdin,

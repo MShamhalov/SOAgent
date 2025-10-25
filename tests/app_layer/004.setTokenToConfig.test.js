@@ -1,13 +1,13 @@
-const fs = require('fs');
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const sl = new SOLogin.Login(account);
+const { envFilePath } = require('#conf');
+const { SOAgentLogin } = require('#SOAgentLogin');
+
+const sl = new SOAgentLogin(envFilePath);
 
 test('Set Token To Config', async () => {
   const token = await sl.getUserToken();
   sl.setTokenToConfig(token);
 
-  RAWdata = fs.readFileSync(account, { encoding: 'utf8', flag: 'r' });
+  const RAWdata = await Bun.file(envFilePath).text();
   const config = JSON.parse(RAWdata);
   const defAcc = config.default_account;
 
