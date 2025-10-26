@@ -211,7 +211,7 @@ class SOAgentInterface {
       return tableHexString + recordHexString;
     } else {
       const soIncludes = require('../app_layer/soIncludes.js');
-      const scriptStr = soIncludes.getDocId(tableName, recordSysId);
+      const scriptStr = soIncludes.getDocId(tableNameOrId, recordSysId);
       const resultText = await this.runScript(scriptStr);
       return resultText;
     }

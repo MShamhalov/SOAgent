@@ -27,13 +27,13 @@
  * ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.                                    
  */
 
-class SOTableHelper {
+class SOAgentTableHelper {
   constructor(confFilePath) {
     const SOAgentIndex = require('../core_layer/SOAgentInterface.js');
-    this.interface = new SOAgentIndex.SimpleOneAgentInterface(confFilePath);
+    this.interface = new SOAgentIndex.SOAgentInterface(confFilePath);
 
-    const SOAgentValidation = require('../core_layer/SOAgentValidation.js');
-    this.validator = new SOAgentValidation.Validator();
+    // const SOAgentValidation = require('../core_layer/SOAgentValidation.js');
+    // this.validator = new SOAgentValidation.Validator();
   }
 
   async createTable(options) {
@@ -256,4 +256,4 @@ class SOTableHelper {
   }
 }
 
-module.exports = { SOTableHelper };
+module.exports = { SOAgentTableHelper };

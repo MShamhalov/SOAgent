@@ -71,20 +71,21 @@ class SOAgentCoreMethods {
 
   getRequestHeader(tableName = null, sysId = null, action) {
     const stdActions = [
-      'auth_basic', 
-      'auth_sso', 
-      'insert', 
-      'read', 
-      'query', 
-      'update', 
-      'delete', 
-      'runScript', 
-      'quickImport', 
-      'clearCache', 
-      'attachmentsUpload'
+      'auth_basic',
+      'auth_sso',
+      'insert',
+      'read',
+      'query',
+      'update',
+      'delete',
+      'runScript',
+      'quickImport',
+      'clearCache',
+      'attachmentsUpload',
     ];
     const cstActions = [
-      'attachFile'
+      'postRequest',
+      'getRequest',
     ];
     let path = '';
     let method = 'POST';
@@ -155,10 +156,14 @@ class SOAgentCoreMethods {
       }
     } else if (cstActions.includes(action)) {
       switch (action) {
-        case 'attachFile': {
-          path = `/v1/api/itsm_itsm/soagent/attach_file`;
-          method = 'POST';
-          contentType = 'application/json';
+        case 'postRequest': {
+          path = `/v1/api/itsm_itsm`;
+          break;
+        }
+
+        case 'getRequest': {
+          path = `/v1/api/itsm_itsm`;
+          method = 'GET';
           break;
         }
       }
@@ -449,6 +454,33 @@ class SOAgentCoreMethods {
         reject(error);
         request.end();
       });
+      request.end();
+    });
+  }
+
+  async postRequest(https, options, content = "") {
+    return new Promise((resolve, reject) => {
+      const request = https.request(options, (response) => {
+        let result = '';
+        response
+          .setEncoding('utf8')
+          .on('data', (chunk) => {
+            result += chunk;
+          })
+          .on('end', () => {
+            resolve(result);
+          });
+      });
+
+      request.on('error', (error) => {
+        reject(error);
+      });
+
+      request.setTimeout(15000, () => {
+        request.destroy(new Error('Request timeout'));
+      });
+
+      request.write(content);
       request.end();
     });
   }

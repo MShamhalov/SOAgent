@@ -3,10 +3,11 @@
   "version": "0.8.5",
   "main": "src/index.js",
   "imports": {
-    "#SOAgentCore": "./src/core_layer/SOAgentCore.js",
+    "#SOAgentCoreMethods": "./src/core_layer/SOAgentCore.js",
     "#SOAgentInterface": "./src/core_layer/SOAgentInterface.js",
     "#SOAgentLogin": "./src/core_layer/SOAgentLogin.js",
-    "#SOAgentTableDictionary": "./src/core_layer/SOAgentTableDictionary",
+    "#SOAgentTableDictionary": "./src/core_layer/SOAgentTableDictionary.js",
+    "#SOAgentTableHelper": "./src/app_layer/SOAgentTableHelper.js",
     "#conf": "./SOAgent.conf"
   }
 }

@@ -1,6 +1,8 @@
-const TableHelper = require('../../src/app_layer/tableHelper.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const th = new TableHelper.SOTableHelper(account);
+/** EE:SOAgentScript */
+const { envFilePath } = require('#conf');
+const { SOAgentTableHelper } = require('#SOAgentTableHelper');
+// const account = require('../../SOAgent.conf').envFilePath;
+const th = new SOAgentTableHelper(envFilePath);
 
 (async function () {
   const options = {

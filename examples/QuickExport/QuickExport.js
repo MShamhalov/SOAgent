@@ -1,6 +1,8 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = './examples/SOAgent.conf';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+/** EE:SOAgentScript */
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
+
+const sa = new SOAgentInterface(envFilePath);
 
 (async function () {
     const queryParams = new Map([
@@ -15,5 +17,5 @@ const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
     const table_name = 'sys_db_table';
     const getRecordsByQuery = await sa.queryRecord(table_name, queryParams);
 
-    sa.saveJSONToFile('file.json', getRecordsByQuery.data, table_name, true);
+    sa.saveJSONToFile('file.json', getRecordsByQuery, table_name, true);
 })();

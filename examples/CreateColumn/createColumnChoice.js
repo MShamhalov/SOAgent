@@ -1,6 +1,8 @@
-const account = require('../../SOAgent.conf').envFilePath;
+/** EE:SOAgentScript */
+const { envFilePath } = require('#conf');
 const TableHelper = require('../../src/app_layer/tableHelper.js');
-const th = new TableHelper.SOTableHelper(account);
+
+const th = new TableHelper.SOTableHelper(envFilePath);
 
 (async function () {
   const data = {

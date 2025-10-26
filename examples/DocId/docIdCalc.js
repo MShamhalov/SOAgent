@@ -1,6 +1,8 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-const confFilePath = './examples/.env';
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+/** EE:SOAgentScript */
+const { envFilePath } = require('#conf');
+const { SOAgentInterface } = require('#SOAgentInterface');
+
+const sa = new SOAgentInterface(envFilePath);
 
 (async function () {
     console.time('localCalc');
