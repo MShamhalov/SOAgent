@@ -1,13 +1,13 @@
 /** EE:SOAgentScript */
 const { envFilePath } = require('#conf');
 const { SOAgentTableHelper } = require('#SOAgentTableHelper');
-// const account = require('../../SOAgent.conf').envFilePath;
+
 const th = new SOAgentTableHelper(envFilePath);
 
 (async function () {
   const options = {
-    title: 'TestTable5',
-    name: 'test_table_5',
+    title: 'TestTable7',
+    name: 'test_table_7',
     parent_id: '',
     is_vcs_enabled: false,
     is_audit: true,

@@ -1,18 +1,15 @@
-const TableHelper = require('../../src/app_layer/tableHelper.js');
-const account = require('../../SOAgent.conf').envFilePath;
-const th = new TableHelper.SOTableHelper(account);
+/** EE:SOAgentScript */
+const { envFilePath } = require('#conf');
+const { SOAgentTableHelper } = require('#SOAgentTableHelper');
 
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const sl = new SOLogin.Login(account);
+const th = new SOAgentTableHelper(envFilePath);
 
 (async function () {
-  await sl.refreshToken(account);
-
   const options = {
     column_type_id: returnColumnTypeID('String'),
-    title: 'TestTable4',
-    column_name: 'new_column',
-    table_id: '174073731994198898',
+    title: 'NewColumn3',
+    column_name: 'new_column3',
+    table_id: '176147459797459398',
 
     active: true,
     read_only: false,
