@@ -84,8 +84,7 @@ class SOAgentCoreMethods {
       'attachmentsUpload',
     ];
     const cstActions = [
-      'postRequest',
-      'getRequest',
+      'sendRequest',
     ];
     let path = '';
     let method = 'POST';
@@ -156,14 +155,8 @@ class SOAgentCoreMethods {
       }
     } else if (cstActions.includes(action)) {
       switch (action) {
-        case 'postRequest': {
+        case 'sendRequest': {
           path = `/v1/api/itsm_itsm`;
-          break;
-        }
-
-        case 'getRequest': {
-          path = `/v1/api/itsm_itsm`;
-          method = 'GET';
           break;
         }
       }
@@ -458,31 +451,34 @@ class SOAgentCoreMethods {
     });
   }
 
-  async postRequest(https, options, content = "") {
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .setEncoding('utf8')
-          .on('data', (chunk) => {
-            result += chunk;
-          })
-          .on('end', () => {
-            resolve(result);
-          });
-      });
+  async sendRequest(options, content) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      request.on('error', (error) => {
-        reject(error);
-      });
+      const fetchOptions = {
+        method: options.method || 'POST',
+        headers: options.headers || {},
+        body: content || undefined,
+        signal: controller.signal
+      };
 
-      request.setTimeout(15000, () => {
-        request.destroy(new Error('Request timeout'));
-      });
+      const fullUrl = `https://${options.hostname}${options.path}`
+      const response = await fetch(fullUrl, fetchOptions);
 
-      request.write(content);
-      request.end();
-    });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.text();
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw error;
+    }
   }
 
   addBearerToToken(tokenCandidate) {
