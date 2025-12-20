@@ -246,6 +246,13 @@ class SOAgentInterface {
       throw error;
     }
   }
+
+  async getSnippetContent(sessionConfig, testPath){
+    let content = `const sessionConfig = ${JSON.stringify(sessionConfig)}\n` 
+    content += await Bun.file(testPath).text();
+    
+    return content;
+  }
 }
 
 module.exports = { SOAgentInterface };
