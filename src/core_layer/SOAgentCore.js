@@ -45,15 +45,15 @@ class SOAgentCoreMethods {
     }
     const readyToken = this.addBearerToToken(conf.token);
     return {
-      hostname: conf.instance,
-      port: 443,
-      path: options.path,
-      method: options.method,
-      headers: {
-        'Content-Type': options.contentType,
-        ForceUseSession: 'true',
-        Authorization: readyToken,
-      },
+        hostname: conf.instance,
+        port: 443,
+        path: options.path,
+        method: options.method,
+        headers: {
+          'Content-Type': options.contentType,
+          ForceUseSession: 'true',
+          Authorization: readyToken,
+        },
     };
   }
 
@@ -482,6 +482,19 @@ class SOAgentCoreMethods {
       }
       throw error;
     }
+  }
+
+  async getSessionConfig(testPath) {
+    const sessionConfig = await Bun.file('./test/${testPath}.config').json();
+
+    return sessionConfig;
+  }
+
+  async setSessionConfig(testPath, object) {
+    const originalConfigPath = `./test/${testPath}.config`;
+    const originalConfigContent = await Bun.file(originalConfigPath).json();
+    Object.assign(originalConfigContent, object);
+    await Bun.write(originalConfigPath, JSON.stringify(originalConfigContent, null, 2));
   }
 
   addBearerToToken(tokenCandidate) {
