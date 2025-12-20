@@ -156,7 +156,7 @@ class SOAgentCoreMethods {
     } else if (cstActions.includes(action)) {
       switch (action) {
         case 'sendRequest': {
-          path = `/v1/api/itsm_itsm`;
+          path = `/v1/cache/reset-cache`;
           break;
         }
       }
@@ -451,15 +451,18 @@ class SOAgentCoreMethods {
     });
   }
 
-  async sendRequest(options, content) {
+  async sendRequest(conf, optionsCustom, body = null) {
     try {
+      const options = this.getOptions(conf, null, null, 'sendRequest');
+      Object.assign(options, optionsCustom);
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
 
       const fetchOptions = {
         method: options.method || 'POST',
         headers: options.headers || {},
-        body: content || undefined,
+        body: body || null,
         signal: controller.signal
       };
 

@@ -8,3 +8,4 @@ const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
   const res = await sa.attachmentsUpload(filePath, 'task', '175959346800487422');
   console.log(res);
 })();
+ 

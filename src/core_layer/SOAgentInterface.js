@@ -163,6 +163,7 @@ class SOAgentInterface {
 
   async clearCache() {
     const resultRAW = await this.core.clearCache(this.https, this.conf);
+
     return JSON.parse(resultRAW).status;
   }
 
@@ -229,6 +230,21 @@ class SOAgentInterface {
     const combineErrorMessage = response.errors.map(error => error.message).join('; \n');
     console.error(`Request status: ${response.status}, Error message: ${combineErrorMessage}`);
     return;
+  }
+
+  async sendRequest(options = null, body = null) {
+    try {
+      const RAWresult = await this.core.sendRequest(this.conf, options);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        this.errorProcessing(result);
+        return;
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Error sending request:", error.message);
+      throw error;
+    }
   }
 }
 

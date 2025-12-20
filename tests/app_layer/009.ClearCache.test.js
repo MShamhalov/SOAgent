@@ -8,4 +8,12 @@ describe('Clear Cache', () => {
     const result = await sa.clearCache();
     expect(result).toEqual('OK');
   });
+
+  test('Clear Client Cache', async () => {
+    const options = {
+      path: '/v1/cache/reset-cache',
+    };
+    const response = await sa.sendRequest(options);
+    expect(response.result).toBe(true);
+  });
 });
