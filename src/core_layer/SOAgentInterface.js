@@ -247,12 +247,27 @@ class SOAgentInterface {
     }
   }
 
-  async getSnippetContent(sessionConfig, testPath){
-    let content = `const sessionConfig = ${JSON.stringify(sessionConfig)}\n` 
+  async getSnippetContent(testPath, sessionConf = null){
+    let content = '';
+    if (sessionConfig) {
+      content += `const sessionConf = ${JSON.stringify(sessionConf)}\n`; 
+    }
     content += await Bun.file(testPath).text();
     
     return content;
   }
+
+  async getSessionConf(configPath) {
+    return await Bun.file(`./tests/${configPath}.conf`).json();
+  }
+
+  async setSessionConf(configPath, object) {
+    const path = `./tests/${configPath}.conf`;
+    const content = await Bun.file(path).json();
+    Object.assign(content, object);
+    await Bun.write(path, JSON.stringify(content, null, 2)); 
+  }
+
 }
 
 module.exports = { SOAgentInterface };
