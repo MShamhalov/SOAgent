@@ -234,13 +234,9 @@ class SOAgentInterface {
 
   async sendRequest(options = null, body = null) {
     try {
-      const RAWresult = await this.core.sendRequest(this.conf, options);
+      const RAWresult = await this.core.sendRequest(this.conf, options, body);
       const result = JSON.parse(RAWresult);
-      if (result.status !== "OK") {
-        this.errorProcessing(result);
-        return;
-      }
-      return result.data;
+      return result;
     } catch (error) {
       console.error("Error sending request:", error.message);
       throw error;
@@ -249,7 +245,7 @@ class SOAgentInterface {
 
   async getSnippetContent(testPath, sessionConf = null){
     let content = '';
-    if (sessionConfig) {
+    if (sessionConf) {
       content += `const sessionConf = ${JSON.stringify(sessionConf)}\n`; 
     }
     content += await Bun.file(testPath).text();
