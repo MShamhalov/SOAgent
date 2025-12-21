@@ -1,3 +1,4 @@
+/** EE:SOAgentTestScript */
 const { envFilePath } = require('#conf');
 const { SOAgentInterface } = require('#SOAgentInterface');
 
@@ -14,6 +15,6 @@ describe('Clear Cache', () => {
       path: '/v1/cache/reset-cache',
     };
     const response = await sa.sendRequest(options);
-    expect(response.result).toBe(true);
+    expect(response.data.result).toBe(true);
   });
 });
