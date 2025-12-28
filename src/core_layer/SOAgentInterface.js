@@ -243,13 +243,13 @@ class SOAgentInterface {
     }
   }
 
-  async getSnippetContent(testPath, sessionConf = null){
+  async getSnippetContent(testPath, sessionConf = null) {
     let content = '';
     if (sessionConf) {
-      content += `const sessionConf = ${JSON.stringify(sessionConf)}\n`; 
+      content += `const sessionConf = ${JSON.stringify(sessionConf)}\n`;
     }
     content += await Bun.file(testPath).text();
-    
+
     return content;
   }
 
@@ -261,7 +261,35 @@ class SOAgentInterface {
     const path = `./tests/${configPath}.conf`;
     const content = await Bun.file(path).json();
     Object.assign(content, object);
-    await Bun.write(path, JSON.stringify(content, null, 2)); 
+    await Bun.write(path, JSON.stringify(content, null, 2));
+  }
+
+  async getPattern(paternPath) {
+    const pattern = await Bun.file(paternPath).json();
+
+    return pattern;
+  }
+
+  async comparePattern(pattern, queryResult) {
+    if (!Array.isArray(queryResult)) {
+      return false;
+    }
+
+    for (const item of queryResult) {
+      for (const [key, patternValue] of Object.entries(pattern)) {
+        if (!(key in item)) {
+          return false;
+        }
+
+        const itemValue = item[key];
+        
+        if (String(itemValue) !== String(patternValue)) {
+          throw new Error(`Несоответствие значения в поле ${key}`);
+        }
+      }
+    }
+
+    return true;
   }
 
 }

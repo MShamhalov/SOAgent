@@ -45,28 +45,49 @@ class SOAgentCoreMethods {
     }
     const readyToken = this.addBearerToToken(conf.token);
     return {
-        hostname: conf.instance,
-        port: 443,
-        path: options.path,
-        method: options.method,
-        headers: {
-          'Content-Type': options.contentType,
-          ForceUseSession: 'true',
-          Authorization: readyToken,
-        },
+      hostname: conf.instance,
+      port: 443,
+      path: options.path,
+      method: options.method,
+      headers: {
+        'Content-Type': options.contentType,
+        ForceUseSession: 'true',
+        Authorization: readyToken,
+      },
     };
   }
 
   addParamsToPath(rawPath, queryParams) {
     let resultStr = '';
-    let i = 0;
-    for (const [key, val] of queryParams) {
-      resultStr += key + '=' + val;
-      i++;
-      if (i < queryParams.size) resultStr += '&';
+    let entries;
+    let totalCount;
+
+    if (queryParams instanceof Map) {
+      entries = queryParams;
+      totalCount = queryParams.size;
+    } else if (typeof queryParams === 'object' && queryParams !== null) {
+      entries = Object.entries(queryParams);
+      totalCount = entries.length;
+    } else {
+      return rawPath;
     }
 
-    return rawPath + '?' + encodeURI(decodeURIComponent(resultStr));
+    let i = 0;
+    for (const [key, val] of entries) {
+      const keyPrefix = 'sysparm_';
+      const keyLabel = key.substring(0, 8) === keyPrefix ? key : keyPrefix + key;
+
+      resultStr += keyLabel + '=' + val;
+
+      i++;
+      if (i < totalCount) resultStr += '&';
+    }
+
+    if (resultStr) {
+      return rawPath + '?' + encodeURI(decodeURIComponent(resultStr));
+    }
+
+    return rawPath;
   }
 
   getRequestHeader(tableName = null, sysId = null, action) {
