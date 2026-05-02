@@ -196,25 +196,39 @@ class SOAgentInterface {
     this.fs.writeFileSync(fileNameTemplate, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
   }
 
-  async getDocId(tableNameOrId, recordSysId) {
+  async getDocId(tableNameOrId, recordSysId = null) {
     const TableDictionary = require('./SOAgentTableDictionary.js');
     const tableDict = new TableDictionary();
-    const sysIdPattern = /\d{18}/;
-    const dicTableSysId = sysIdPattern.test(tableNameOrId) ? tableNameOrId : tableDict.getTableId(tableNameOrId);
-    if (dicTableSysId) {
-      const tableDocId = BigInt(dicTableSysId);
-      let tableHexString = tableDocId.toString(16);
-      tableHexString = tableHexString.padStart(16, '0');
 
-      const recordDocId = BigInt(recordSysId);
-      let recordHexString = recordDocId.toString(16);
-      recordHexString = recordHexString.padStart(16, '0');
-      return tableHexString + recordHexString;
+    if (!recordSysId && typeof tableNameOrId === 'string' && tableNameOrId.includes('/')) {
+      const parts = tableNameOrId.startsWith('/') ? tableNameOrId.slice(1).split('/') : tableNameOrId.split('/');
+      if (parts.length === 2) {
+        tableNameOrId = parts[0];
+        recordSysId = parts[1];
+      }
+    }
+    
+    if (recordSysId) {
+      const sysIdPattern = /\d{18}/;
+      const dicTableSysId = sysIdPattern.test(tableNameOrId) ? tableNameOrId : tableDict.getTableId(tableNameOrId);
+      if (dicTableSysId) {
+        const tableDocId = BigInt(dicTableSysId);
+        let tableHexString = tableDocId.toString(16);
+        tableHexString = tableHexString.padStart(16, '0');
+
+        const recordDocId = BigInt(recordSysId);
+        let recordHexString = recordDocId.toString(16);
+        recordHexString = recordHexString.padStart(16, '0');
+        return tableHexString + recordHexString;
+      } else {
+        const soIncludes = require('../app_layer/soIncludes.js');
+        const scriptStr = soIncludes.getDocId(tableNameOrId, recordSysId);
+        const resultText = await this.runScript(scriptStr);
+        return resultText;
+      }
     } else {
-      const soIncludes = require('../app_layer/soIncludes.js');
-      const scriptStr = soIncludes.getDocId(tableNameOrId, recordSysId);
-      const resultText = await this.runScript(scriptStr);
-      return resultText;
+      
+      return "under constuction";
     }
   }
 
@@ -234,7 +248,13 @@ class SOAgentInterface {
 
   async sendRequest(options = null, body = null) {
     try {
-      const RAWresult = await this.core.sendRequest(this.conf, options, body);
+      // Преобразуем body в строку, если это объект, который можно преобразовать при помощи JSON.stringify
+      let bodyToSend = body;
+      if (body && typeof body === 'object' && typeof JSON.stringify(body) !== 'undefined') {
+        bodyToSend = JSON.stringify(body);
+      }
+
+      const RAWresult = await this.core.sendRequest(this.conf, options, bodyToSend);
       const result = JSON.parse(RAWresult);
       return result;
     } catch (error) {
@@ -254,11 +274,11 @@ class SOAgentInterface {
   }
 
   async getSessionConf(configPath) {
-    return await Bun.file(`./tests/${configPath}.conf`).json();
+    return await Bun.file(configPath).json();
   }
 
   async setSessionConf(configPath, object) {
-    const path = `./tests/${configPath}.conf`;
+    const path = `${configPath}.conf`;
     const content = await Bun.file(path).json();
     Object.assign(content, object);
     await Bun.write(path, JSON.stringify(content, null, 2));
@@ -282,14 +302,22 @@ class SOAgentInterface {
         }
 
         const itemValue = item[key];
-        
+
         if (String(itemValue) !== String(patternValue)) {
-          throw new Error(`Несоответствие значения в поле ${key}`);
+          throw new Error(`Несоответствие значения в поле ${key} ожидаемое значение: ${String(itemValue)} фактическое значение ${String(patternValue)}`);
         }
       }
     }
 
     return true;
+  }
+
+  async insertRecordFromTemplate(tableName, template, reModelId = null) {
+    const soIncludes = require('../app_layer/soIncludes.js');
+    const scriptStr = soIncludes.insertRecordFromTemplate(tableName, JSON.stringify(template), reModelId);
+    const resultText = await this.runScript(scriptStr);
+
+    return resultText;
   }
 
 }

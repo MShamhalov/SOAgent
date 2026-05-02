@@ -81,7 +81,7 @@ const commands = {
   async findById(args) {
     const searchId = args[0];
     const SOHelper = require('../src/app_layer/soIncludes.js');
-    fileContent = SOHelper.findRecordById(searchId);
+    const fileContent = SOHelper.findRecordById(searchId);
     const result = await sa.runScript(fileContent);
     console.log(result);
   },
@@ -158,6 +158,35 @@ const commands = {
     console.log(Object.keys(commands));
   },
 
+  async setScriptMapping(args) {
+    if (!args[0]) {
+      console.log("Ошибка! Нет обязательных атрибутов!");
+      return;
+    }
+    const path = args[0].split('/');
+    // const entityTable = path[0]; // Название таблицы
+    const entityName = path[1];  // ID записи
+
+    const fileName = args[1]?.split('\\')?.at(-1) || `${entityName}.js`;
+    const fieldName = args[2] || 'script';
+    
+    if (args[0].indexOf('/') === 0) {
+      args[0] = args[0].replace('/', '');
+    }
+
+    // Записать новую запись в DeployMapping
+    const deployMappingDescriptor = Bun.file(sa.conf.deployMappingFilePath);
+    const deployMapping = await deployMappingDescriptor.json();
+    
+    deployMapping.entityAccordance[fileName] = {
+      targetEntity: args[0].replace('\\', '/'),
+      targetField: fieldName,
+    };
+
+    await Bun.write(sa.conf.deployMappingFilePath, JSON.stringify(deployMapping, null, 2));
+    console.log("Mapping ready");
+  },
+
   // Aliases
   async gdi(args) {
     this.getDocId(args)
@@ -189,6 +218,10 @@ const commands = {
 
   async i() {
     this.instance();
+  },
+
+  async ssm(args) {
+    this.setScriptMapping(args);
   },
 
   exit() {

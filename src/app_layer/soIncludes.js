@@ -91,9 +91,37 @@ function getInstance() {
   return scriptStr;
 }
 
+function insertRecordFromTemplate(tableName, template, reModelId = null) {
+  const script = `
+    const templateObj = ${template};
+    const reModelId = ${reModelId};
+    const record = new SimpleRecord('${tableName}');
+    record.initialize();
+    if (reModelId) record.setReModelId('${reModelId}');
+    for (const key in templateObj) {
+      if (key === 'rem_attr') {
+        for (const remKey in templateObj.rem_attr) {
+          record.rem_attr[remKey] = templateObj.rem_attr[remKey];
+        }
+      } else {
+        record[key] = templateObj[key];
+      }
+    }
+    const recordId = record.insert();
+    if (!+recordId) {
+      ss.error(record.getErrors());
+      return;
+    }
+
+    print(recordId);
+  `;
+
+  return script;
+}
 
 module.exports = {
   findRecordById,
   getDocId,
-  getInstance
+  getInstance,
+  insertRecordFromTemplate,
 };
