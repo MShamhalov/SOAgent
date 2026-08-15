@@ -1,11 +1,9 @@
-const SOAgent = require('../../src/core_layer/SOAgentInterface.js');
-
-const confFilePath = require('../../SOAgent.conf').envFilePath;
-const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
+/** EE:SOAgentScript */
+const sa = require('#SOAgentInterface');
 
 (async function () {
-  const filePath = './file.pdf';
-  const res = await sa.attachmentsUpload(filePath, 'task', '175959346800487422');
+  const filePath = './tmp/file.pdf';
+  const res = await sa.attachmentsUpload(filePath, 'itsm_incident', '178678868505774683');
   console.log(res);
 })();
  

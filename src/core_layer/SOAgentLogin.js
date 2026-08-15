@@ -89,8 +89,7 @@ class SOAgentLogin {
 
   async refreshToken() {
     const token = await this.getUserToken();
-    if (!token) return;
-    this.setTokenToConfig(token);
+    await this.setTokenToConfig(token);
   }
 
   async switchInstance(newAccount) {

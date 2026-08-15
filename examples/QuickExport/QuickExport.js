@@ -1,8 +1,5 @@
 /** EE:SOAgentScript */
-const { envFilePath } = require('#conf');
-const { SOAgentInterface } = require('#SOAgentInterface');
-
-const sa = new SOAgentInterface(envFilePath);
+const sa = require('#SOAgentInterface');
 
 (async function () {
     const queryParams = new Map([
@@ -14,8 +11,6 @@ const sa = new SOAgentInterface(envFilePath);
       ['sysparm_limit', '600'],
 
     ]);
-    const table_name = 'sys_db_table';
-    const getRecordsByQuery = await sa.queryRecord(table_name, queryParams);
-
+    const getRecordsByQuery = await sa.queryRecord('sys_db_table', queryParams);
     sa.saveJSONToFile('file.json', getRecordsByQuery, table_name, true);
 })();

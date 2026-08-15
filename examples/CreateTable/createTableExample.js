@@ -1,8 +1,5 @@
 /** EE:SOAgentScript */
-const { envFilePath } = require('#conf');
-const { SOAgentTableHelper } = require('#SOAgentTableHelper');
-
-const th = new SOAgentTableHelper(envFilePath);
+const th = require('#SOAgentTableHelper');
 
 (async function () {
   const options = {
@@ -11,8 +8,8 @@ const th = new SOAgentTableHelper(envFilePath);
     parent_id: '',
     is_vcs_enabled: false,
     is_audit: true,
-    record_deletion_logging: '',
-    indicate_presence: '',
+    record_deletion_logging: false,
+    indicate_presence: false,
   };
 
   const result = await th.createTable(options);

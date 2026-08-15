@@ -1,7 +1,6 @@
-const SOLogin = require('../../src/core_layer/SOLogin.js');
-const confFilePath = './examples/SOAgent.conf';
-const sl = new SOLogin.Login(confFilePath);
+/** EE:SOAgentScript */
+const sl = require('#SOAgentLogin');
 
 (async function () {
-  await sl.refreshToken(confFilePath);
+  await sl.refreshToken();
 })();

@@ -53,9 +53,7 @@
 
 ### Скелет скрипта
 ```js
-import SOAgent from '../modules/SOAgentInterface.js';
 
-const confFilePath = './SOAgent.conf';
 const sa = new SOAgent(confFilePath);
 
 (async function () {

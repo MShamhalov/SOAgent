@@ -28,9 +28,8 @@
  */
 
 class SOAgentTableHelper {
-  constructor(confFilePath) {
-    const SOAgentIndex = require('../core_layer/SOAgentInterface.js');
-    this.interface = new SOAgentIndex.SOAgentInterface(confFilePath);
+  constructor() {
+    this.sa = require('#SOAgentInterface');
 
     // const SOAgentValidation = require('../core_layer/SOAgentValidation.js');
     // this.validator = new SOAgentValidation.Validator();
@@ -42,7 +41,7 @@ class SOAgentTableHelper {
     // return;
     // }
 
-    const insertRecord = await this.interface.insertRecord('sys_db_table', options);
+    const insertRecord = await this.sa.insertRecord('sys_db_table', options);
     return insertRecord;
   }
 
@@ -52,7 +51,7 @@ class SOAgentTableHelper {
     // return;
     // }
 
-    const insertRecord = await this.interface.insertRecord('sys_db_column', options);
+    const insertRecord = await this.sa.insertRecord('sys_db_column', options);
     return insertRecord;
   }
 
@@ -61,14 +60,14 @@ class SOAgentTableHelper {
 
     const result = [];
     for (const columnOption of columnOptions) {
-      result.push(await this.interface.insertRecord('sys_db_column', columnOption));
+      result.push(await this.sa.insertRecord('sys_db_column', columnOption));
     }
 
     return result;
   }
 
   async createReferenceColumn(options) {
-    const insertRecord = await this.interface.insertRecord('sys_db_column', options);
+    const insertRecord = await this.sa.insertRecord('sys_db_column', options);
     return insertRecord;
   }
 
@@ -79,8 +78,7 @@ class SOAgentTableHelper {
     if (tableAttributes) {
       // Используем не стандартную таблицу
       const table = await this.createTable(tableAttributes);
-      tableId = this.interface.getValue(table, 'sys_id');
-      
+      tableId = this.sa.getValue(table, 'sys_id');
 
       // Создание полей в таблице choice
       const columnsOptions = [
@@ -133,27 +131,28 @@ class SOAgentTableHelper {
 
       // Создание записей в Choice таблице
       for (const option of choiceOptions) {
-        tableNameReal = this.interface.getValue(table, 'name');
-        await this.interface.insertRecord(tableNameReal, option);
+        tableNameReal = this.sa.getValue(table, 'name');
+        await this.sa.insertRecord(tableNameReal, option);
       }
     }
 
     choiceAttributes.column_type_id = this.returnColumnTypeID('Choice');
-    const columnRecord = await this.interface.insertRecord('sys_db_column', choiceAttributes);
-    const columnRecordId = this.interface.getValue(columnRecord, 'sys_id');
+    const columnRecord = await this.sa.insertRecord('sys_db_column', choiceAttributes);
+    const columnRecordId = this.sa.getValue(columnRecord, 'sys_id');
 
     if (!tableAttributes) {
       for (const option of choiceOptions) {
         option.column_id = columnRecordId;
         option.table_id = tableId;
         tableNameReal = 'sys_choice';
-        await this.interface.insertRecord(tableNameReal, option);
+        await this.sa.insertRecord(tableNameReal, option);
       }
     }
   }
 
   returnColumnTypeID(columnName) {
-    const columnTypes = new Map([
+    // const dict = await Bun.file('#SOAgentDict/columnType.js');
+    const columnType = new Map([
       ['rich_text', '42'],
       ['Rich Text', '42'],
       ['datetime_specific', '41'],
@@ -228,7 +227,7 @@ class SOAgentTableHelper {
       ['Integer', '1'],
     ]);
 
-    return columnTypes.get(columnName) || '12';
+    return columnType.get(columnName) || '12';
   }
 
   _isEmptyObject(object) {
@@ -247,7 +246,7 @@ class SOAgentTableHelper {
       ['sysparm_limit', '1'],
     ]);
 
-    const getRecordsByQueryString = await this.interface.queryRecord('sys_db_column', queryParams);
+    const getRecordsByQueryString = await this.sa.queryRecord('sys_db_column', queryParams);
     const getRecordsByQueryObject = JSON.parse(getRecordsByQueryString);
 
     if (getRecordsByQueryObject?.data?.[0]?.sys_id) {
@@ -256,4 +255,4 @@ class SOAgentTableHelper {
   }
 }
 
-module.exports = { SOAgentTableHelper };
+module.exports = new SOAgentTableHelper();

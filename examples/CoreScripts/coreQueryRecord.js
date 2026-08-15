@@ -1,5 +1,5 @@
 /** EE:SOAgentScript */
-const { envFilePath } = require('#conf');
+const envFilePath = require('#conf');
 const { SOAgentCoreMethods } = require('#SOAgentCoreMethods');
 
 const fs = require("fs");
@@ -27,7 +27,7 @@ const options = sc.getOptions(conf, null, null, 'sendRequest');
   // "/rest/v1/table/task?sysparm_query=state!=10^subjectLIKEне%20работает&sysparm_querysysparm_display_value=0&sysparm_exclude_reference_link=0&sysparm_fields=number&sysparm_view=&sysparm_limit=2"
   options.method = 'GET';
 
-  // console.log(await sc.sendRequest(options));
+  console.log(await sc.sendRequest(conf, options));
 })();
 
 function buildQueryString(params) {
