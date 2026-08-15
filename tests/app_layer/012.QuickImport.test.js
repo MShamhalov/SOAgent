@@ -1,7 +1,5 @@
-const { envFilePath } = require('#conf');
-const { SOAgentInterface } = require('#SOAgentInterface');
-
-const sa = new SOAgentInterface(envFilePath);
+/** EE:SOAgentTestScript */
+const sa = require('#SOAgentInterface');
 
 beforeAll(async () => {
     const uploadContent = {

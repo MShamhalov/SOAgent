@@ -1,8 +1,5 @@
 /** EE:SOAgentTestScript */
-const { envFilePath } = require('#conf');
-const { SOAgentInterface } = require('#SOAgentInterface');
-
-const sa = new SOAgentInterface(envFilePath);
+const sa = require('#SOAgentInterface');
 
 describe('Clear Cache', () => {
   test('Clear Cache', async () => {

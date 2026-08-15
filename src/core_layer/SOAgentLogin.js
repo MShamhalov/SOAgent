@@ -28,21 +28,23 @@
  */
 
 class SOAgentLogin {
-  constructor(confFilePath) {
+  constructor() {
     this.https = require('https');
     this.fs = require('fs');
 
     const SOAgentCore = require('./SOAgentCore.js');
     this.core = new SOAgentCore.SOAgentCoreMethods();
-    this.conf = this.core.getConfiguration(this.fs, confFilePath);
-    this.confFilePath = confFilePath;
+    this.confFilePath = require('#conf');
+    this.conf = this.core.getConfiguration(this.fs, this.confFilePath);
   }
 
   async getUserToken(auth_type) {
     const answer = await this.core.getUserToken(this.https, this.conf, auth_type);
     try {
       const tokenCandidate = JSON.parse(answer).data.auth_key;
-      if (!this._isTokenLooksCorrect(tokenCandidate)) return;
+      if (!this._isTokenLooksCorrect(tokenCandidate)) {
+        throw new Error("Invalid token length");
+      }
       return tokenCandidate;
     } catch {
       console.error('Invalid username or password!');
@@ -136,8 +138,8 @@ class SOAgentLogin {
   }
 
   _isTokenLooksCorrect(token) {
-    return token.length === 32;
+    return token.length === 32 || token.length === 64;
   }
 }
 
-module.exports = { SOAgentLogin };
+module.exports = new SOAgentLogin();

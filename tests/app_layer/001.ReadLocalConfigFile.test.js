@@ -1,8 +1,8 @@
-const { envFilePath } = require('#conf');
+/** EE:SOAgentTestScript */
+const envFilePath = require('#conf');
 
 test('Read Local Config File', async () => {
-  const RAWdata = await Bun.file(envFilePath).text();
-  const config = JSON.parse(RAWdata);
+  const config = await Bun.file(envFilePath).json();
 
   expect(config.default_account).toBeTruthy();
   expect(config.accounts[config.default_account].protocol).toBeTruthy();

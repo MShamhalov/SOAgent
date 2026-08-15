@@ -118,10 +118,10 @@ class SOAgentCoreMethods {
           break;
         }
 
-        case 'auth_sso': {
-          path = `/v1/auth/side-door`;
-          break;
-        }
+        // case 'auth_sso': {
+        //   path = `/v1/auth/side-door`;
+        //   break;
+        // }
 
         case 'insert': {
           path = `/rest/v1/table/${tableName}`;
@@ -186,7 +186,7 @@ class SOAgentCoreMethods {
     return { method, path, contentType };
   }
 
-  async getUserToken(https, conf, auth = 'auth_sso') {
+  async getUserToken(https, conf, auth = 'auth_basic') {
     const options = this.getOptions(conf, null, null, auth);
     delete options.headers.Authorization;
     const obj = `{"username": "${conf.login}", "password": "${conf.password}"}`;

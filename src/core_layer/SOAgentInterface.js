@@ -28,14 +28,14 @@
  */
 
 class SOAgentInterface {
-  constructor(confFilePath) {
+  constructor() {
     this.https = require('https');
     this.fs = require('fs');
     this.path = require('path');
     const SOAgentCore = require('./SOAgentCore.js');
     this.core = new SOAgentCore.SOAgentCoreMethods();
-    this.confFilePath = confFilePath;
-    this.conf = this.core.getConfiguration(this.fs, confFilePath);
+    this.confFilePath = require('#conf');
+    this.conf = this.core.getConfiguration(this.fs, this.confFilePath);
   }
 
   reloadConfig() {
@@ -322,4 +322,4 @@ class SOAgentInterface {
 
 }
 
-module.exports = { SOAgentInterface };
+module.exports = new SOAgentInterface();

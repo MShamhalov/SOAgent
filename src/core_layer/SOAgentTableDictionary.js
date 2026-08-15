@@ -29,7 +29,7 @@
 
 class SOAgentTableDictionary {
   constructor() {
-    const tableDictinaries = require('../SODictinaries/table');
+    const tableDictinaries = require('../dictinaries/table');
     const entries = tableDictinaries.tablesAndSysIds;
     this.nameToId = new Map();
     this.idToName = new Map();

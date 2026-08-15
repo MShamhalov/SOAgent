@@ -1,19 +1,18 @@
-const { envFilePath } = require('#conf');
-const { SOAgentInterface } = require('#SOAgentInterface');
-
-const sa = new SOAgentInterface(envFilePath);
+/** EE:SOAgentTestScript */
+const sa = require('#SOAgentInterface');
 
 describe('RunScript Tests', () => {
     let recordId;
     getTableIdScript = `
         const table = new SimpleRecord('sys_db_table');
         table.get('name', 'task');
-        ss.debug(table.getValue('sys_id'));
+        print(table.getValue('sys_id'));
     `;
 
     test('Insert record to instance', async () => {
         const insertObject = {
-          subject: 'Не работает беспроводная клавиатура Roxy M17',
+            subject: 'Не работает беспроводная клавиатура Roxy M17',
+            caller: '155931135900000001' // Admin user
         };
         const insertRecord = await sa.insertRecord('task', insertObject);
 
@@ -25,7 +24,7 @@ describe('RunScript Tests', () => {
         const taskTableSysId = await sa.runScript(getTableIdScript);
         getDocIdScript = `
             const recordDocID = ss.getDocIdByIds('${taskTableSysId}', '${recordId}');
-            ss.debug(recordDocID);
+            print(recordDocID);
         `;
 
         const recordDocIdFromSimpleOne = await sa.runScript(getDocIdScript);

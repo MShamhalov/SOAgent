@@ -1,7 +1,5 @@
-const { envFilePath } = require('#conf');
-const { SOAgentInterface } = require('#SOAgentInterface');
-
-const sa = new SOAgentInterface(envFilePath);
+/** EE:SOAgentTestScript */
+const sa = require('#SOAgentInterface');
 
 describe('Последовательные тесты', () => {
   let delLink = '';
@@ -20,6 +18,7 @@ describe('Последовательные тесты', () => {
   test('Insert Record', async () => {
     const insertObject = {
       subject: 'Не работает беспроводная клавиатура Roxy M17',
+      caller: '155931135900000001' // Admin user
     };
     insertRecord = await sa.insertRecord('task', insertObject);
     recordId = sa.getValue(insertRecord, 'sys_id');

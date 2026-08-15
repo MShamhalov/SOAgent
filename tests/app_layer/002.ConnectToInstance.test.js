@@ -1,10 +1,9 @@
-const { envFilePath } = require('#conf');
+/** EE:SOAgentTestScript */
+const envFilePath = require('#conf');
 
-var response;
+let response;
 beforeAll(async () => {
-  const RAWdata = await Bun.file(envFilePath).text();
-  const config = JSON.parse(RAWdata);
-
+  const config = await Bun.file(envFilePath).json();
   const defAcc = config.default_account;
 
   const options = {
