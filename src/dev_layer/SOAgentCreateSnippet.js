@@ -7,7 +7,7 @@
   const pachToFile = dir + '/' + newFile;
   fs.writeFileSync(pachToFile, '', (err) => { if (err) throw err; }, 'as');
   console.error(pachToFile + "\n");
-  exec(`code -r ${pachToFile}`);
+  exec(`code -r "${pachToFile}"`);
 })();
 
 function getNextSnippetFileName(fs, dirPath) {

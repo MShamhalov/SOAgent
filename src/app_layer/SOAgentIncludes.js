@@ -43,7 +43,7 @@ function findRecordById(objSysId) {
       if (current.sys_id) {
         const candidateTable = tables.name;
         const tableName = getCurrentTable(candidateTable, recordID);
-        ss.debug('/record/' + tableName + '/' + recordID);
+        print('/record/' + tableName + '/' + recordID);
         break;
       }
     } 
@@ -71,7 +71,7 @@ function getDocId(tableName, recordId) {
   const scriptStr = `
     const tableId = getTableId('${tableName}');
     const docId = ss.getDocIdByIds(tableId, '${recordId}');
-    ss.debug(docId);
+    print(docId);
 
     function getTableId(table_name) {
       const table = new SimpleRecord('sys_db_table');
@@ -85,7 +85,7 @@ function getDocId(tableName, recordId) {
 
 function getInstance() {
   const scriptStr = `
-    ss.debug(ss.getProperty('simple.instance.uri'));
+    print(ss.getProperty('simple.instance.uri'));
   `;
 
   return scriptStr;

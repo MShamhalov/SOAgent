@@ -6,7 +6,7 @@
     "#SOAgentCoreMethods": "./src/core_layer/SOAgentCore.js",
     "#SOAgentInterface": "./src/core_layer/SOAgentInterface.js",
     "#SOAgentLogin": "./src/core_layer/SOAgentLogin.js",
-    "#SOAgentTableDictionary": "./src/core_layer/SOAgentTableDictionary.js",
+    "#SOAgentTableDictionary": "./src/dictinaries/SOAgentTableDictionary.js",
     "#SOAgentTableHelper": "./src/app_layer/SOAgentTableHelper.js",
     "#conf": "./SOAgent.conf"
   }

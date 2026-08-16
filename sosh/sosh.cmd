@@ -1,2 +1,2 @@
 cd C:/dev/soagent/
-bun ./sosh/sosh
+bun ./sosh/sosh %*

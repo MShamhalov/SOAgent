@@ -221,7 +221,7 @@ class SOAgentInterface {
         recordHexString = recordHexString.padStart(16, '0');
         return tableHexString + recordHexString;
       } else {
-        const soIncludes = require('../app_layer/soIncludes.js');
+        const soIncludes = require('../app_layer/SOAgentIncludes.js');
         const scriptStr = soIncludes.getDocId(tableNameOrId, recordSysId);
         const resultText = await this.runScript(scriptStr);
         return resultText;
@@ -313,7 +313,7 @@ class SOAgentInterface {
   }
 
   async insertRecordFromTemplate(tableName, template, reModelId = null) {
-    const soIncludes = require('../app_layer/soIncludes.js');
+    const soIncludes = require('../app_layer/SOAgentIncludes.js');
     const scriptStr = soIncludes.insertRecordFromTemplate(tableName, JSON.stringify(template), reModelId);
     const resultText = await this.runScript(scriptStr);
 
