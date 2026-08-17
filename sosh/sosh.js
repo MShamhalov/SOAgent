@@ -26,16 +26,12 @@
  * ВОЗНИКШИМ   ИЗ-ЗА   ИСПОЛЬЗОВАНИЯ  ПРОГРАММНОГО  ОБЕСПЕЧЕНИЯ  ИЛИ  ИНЫХ 
  * ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.                                    
  */
-
-const { envFilePath } = require('#conf');
-const { SOAgentLogin } = require('#SOAgentLogin');
-const { SOAgentInterface } = require('#SOAgentInterface');
-const { sign } = require('crypto');
-
-const sl = new SOAgentLogin(envFilePath);
-const sa = new SOAgentInterface(envFilePath);
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+const { sign } = require('crypto');
+const sl = require('#SOAgentLogin');
+const sa = require('#SOAgentInterface');
+
 const readline = require('readline');
 
 const commands = {
@@ -80,7 +76,7 @@ const commands = {
 
   async findById(args) {
     const searchId = args[0];
-    const SOHelper = require('../src/app_layer/soIncludes.js');
+    const SOHelper = require('../src/app_layer/SOAgentIncludes.js');
     const fileContent = SOHelper.findRecordById(searchId);
     const result = await sa.runScript(fileContent);
     console.log(result);
@@ -88,7 +84,7 @@ const commands = {
 
   async instance() {
     sa.reloadConfig();
-    const SOHelper = require('../src/app_layer/soIncludes.js');
+    const SOHelper = require('../src/app_layer/SOAgentIncludes.js');
     const script = SOHelper.getInstance();
     const result = await sa.runScript(script);
     console.log("Local File Path: " + sa.conf.instance);
@@ -169,7 +165,7 @@ const commands = {
 
     const fileName = args[1]?.split('\\')?.at(-1) || `${entityName}.js`;
     const fieldName = args[2] || 'script';
-    
+
     if (args[0].indexOf('/') === 0) {
       args[0] = args[0].replace('/', '');
     }
@@ -177,7 +173,7 @@ const commands = {
     // Записать новую запись в DeployMapping
     const deployMappingDescriptor = Bun.file(sa.conf.deployMappingFilePath);
     const deployMapping = await deployMappingDescriptor.json();
-    
+
     deployMapping.entityAccordance[fileName] = {
       targetEntity: args[0].replace('\\', '/'),
       targetField: fieldName,
@@ -189,39 +185,39 @@ const commands = {
 
   // Aliases
   async gdi(args) {
-    this.getDocId(args)
+    return await this.getDocId(args);
   },
 
   async gtn(args) {
-    this.getTableName(args)
+    return await this.getTableName(args);
   },
 
   async gti(args) {
-    this.getTableId(args)
+    return await this.getTableId(args);
   },
 
   async fbi(args) {
-    this.findById(args);
+    return await this.findById(args);
   },
 
   async swi(args) {
-    this.switchInstance(args);
+    return await this.switchInstance(args);
   },
 
   async cc() {
-    this.clearCache();
+    return await this.clearCache();
   },
-  
-  st(args) {
-    this.setToken(args);
+
+  async st(args) {
+    return await this.setToken(args);
   },
 
   async i() {
-    this.instance();
+    return await this.instance();
   },
 
   async ssm(args) {
-    this.setScriptMapping(args);
+    return await this.setScriptMapping(args);
   },
 
   exit() {
@@ -238,7 +234,7 @@ const rl = readline.createInterface({
 
 rl.prompt();
 
-rl.on('line', (line) => {
+rl.on('line', async (line) => {
   const input = line.trim();
 
   if (!input) {
@@ -250,7 +246,7 @@ rl.on('line', (line) => {
 
   if (commands.hasOwnProperty(cmd)) {
     try {
-      commands[cmd](args);
+      await commands[cmd](args); // Добавлено await для ожидания завершения
     } catch (e) {
       console.error('Ошибка выполнения команды:', e.message);
     }
