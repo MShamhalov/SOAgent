@@ -44,7 +44,7 @@ const commands = {
     const fileContent = `
       const table = new SimpleRecord('sys_db_table');
       table.get('name', '${tableName}');
-      ss.debug(table.getValue('sys_id'));
+      print(table.getValue('sys_id'));
     `;
 
     const result = await sa.runScript(fileContent);
@@ -56,7 +56,7 @@ const commands = {
     const fileContent = `
       const table = new SimpleRecord('sys_db_table');
       table.get('${tableId}');
-      ss.debug(table.getValue('name'));
+      print(table.getValue('name'));
     `;
 
     const result = await sa.runScript(fileContent);
@@ -87,7 +87,7 @@ const commands = {
     const SOHelper = require('../src/app_layer/SOAgentIncludes.js');
     const script = SOHelper.getInstance();
     const result = await sa.runScript(script);
-    console.log("Local File Path: " + sa.conf.instance);
+    console.log("Local File Path:     " + sa.conf.instance);
     console.log("simple.instance.uri: " + result);
   },
 
@@ -124,7 +124,7 @@ const commands = {
       }
     }
 
-    ss.debug(choiceElements.filter((item, index) => choiceElements.indexOf(item) === index));
+    print(choiceElements.filter((item, index) => choiceElements.indexOf(item) === index));
     `;
 
     const result = await sa.runScript(fileContent);
