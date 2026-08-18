@@ -21,7 +21,11 @@ import { $ } from 'bun';
     }
 
     case 'soagent_test': {
-      await $`bun test ${scriptFilePath}`;
+      try {
+        await $`bun test ${scriptFilePath}`;
+      } catch(err){
+        console.error("Tecт провален: " + err);
+      }
       break;
     }
 

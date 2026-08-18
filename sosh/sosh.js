@@ -189,10 +189,37 @@ const commands = {
     console.log("Mapping ready");
   },
 
-  async addInstance(args){
+  async addInstance(args) {
     const confFilePath = require('#conf');
+    const content = await Bun.file(confFilePath).json();
+    const newInstance = {
+      "protocol": "https",
+      "instance": null,
+      "login": null,
+      "password": null,
+      "token": null
+    };
+    content.accounts[args[0]] = newInstance;
+    await Bun.write(confFilePath, JSON.stringify(content, null, 2));
+    sa.reloadConfig();
+  },
 
+  async setAddress(args) {
+    const confFilePath = require('#conf');
+    const content = await Bun.file(confFilePath).json();
+    const instances = [];
+    for (const key of Object.keys(content.accounts)) {
+      instances.push(key);
+    }
 
+    if (args[1] && !instances.includes(args[1])) {
+      console.error("Нет такого инстанса!\nВозможно надо его создать при помощи команды addInstance <instanceName>");
+      return;
+    }
+    const currentInstance = args[1] || content.default_account;
+    content.accounts[currentInstance].instance = args[0];
+
+    await Bun.write(confFilePath, JSON.stringify(content, null, 2));
     sa.reloadConfig();
   },
 
