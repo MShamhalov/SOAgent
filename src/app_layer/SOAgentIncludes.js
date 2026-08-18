@@ -46,8 +46,7 @@ function findRecordById(objSysId) {
         print('/record/' + tableName + '/' + recordID);
         break;
       }
-    } 
-    print("Searching compleate");
+    }
 
     function getCurrentTable(candidateTable, recordId) {
       const SYS_DB_TABLE_IDENTITY = '155931135900000015';

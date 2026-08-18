@@ -28,6 +28,11 @@
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+const args = process.argv.slice(2);
+const hasCommandLineArgs = args.length > 0;
+const initialCommand = hasCommandLineArgs ? args[0] : null;
+let isOneShot = !!hasCommandLineArgs;
+
 const { sign } = require('crypto');
 const sl = require('#SOAgentLogin');
 const sa = require('#SOAgentInterface');
@@ -80,6 +85,7 @@ const commands = {
     const fileContent = SOHelper.findRecordById(searchId);
     const result = await sa.runScript(fileContent);
     console.log(result);
+    console.log("Searching compleate");
   },
 
   async instance() {
@@ -183,6 +189,13 @@ const commands = {
     console.log("Mapping ready");
   },
 
+  async addInstance(args){
+    const confFilePath = require('#conf');
+
+
+    sa.reloadConfig();
+  },
+
   // Aliases
   async gdi(args) {
     return await this.getDocId(args);
@@ -232,6 +245,27 @@ const rl = readline.createInterface({
   prompt: 'sosh> '
 });
 
+async function executeCommand(cmd, cmdArgs) {
+  if (commands.hasOwnProperty(cmd)) {
+    try {
+      await commands[cmd](cmdArgs);
+    } catch (e) {
+      console.error('Ошибка выполнения команды:', e.message);
+    }
+  } else {
+    console.log(`Неизвестная команда: ${cmd}`);
+  }
+}
+
+if (initialCommand) {
+  const cmdArgs = args.slice(1);
+  await executeCommand(initialCommand, cmdArgs);
+  if (isOneShot) {
+    process.exit(0);
+  }
+}
+
+
 rl.prompt();
 
 rl.on('line', async (line) => {
@@ -246,7 +280,7 @@ rl.on('line', async (line) => {
 
   if (commands.hasOwnProperty(cmd)) {
     try {
-      await commands[cmd](args); // Добавлено await для ожидания завершения
+      await commands[cmd](args);
     } catch (e) {
       console.error('Ошибка выполнения команды:', e.message);
     }
