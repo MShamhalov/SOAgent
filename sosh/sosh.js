@@ -84,7 +84,9 @@ const commands = {
     const SOHelper = require('../src/app_layer/SOAgentIncludes.js');
     const fileContent = SOHelper.findRecordById(searchId);
     const result = await sa.runScript(fileContent);
-    console.log(result);
+    if (result) {
+      console.log(`${sa.conf.protocol}://${sa.conf.instance}${result}\n`);
+    }
     console.log("Searching compleate");
   },
 

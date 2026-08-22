@@ -30,6 +30,21 @@
 class SOAgentCoreMethods {
   constructor() { }
 
+  _makeRequest(https, options, body = null) {
+    return new Promise((resolve, reject) => {
+      const request = https.request(options, (response) => {
+        let result = '';
+        response
+          .setEncoding('utf8')
+          .on('data', (chunk) => { result += chunk; })
+          .on('end', () => { resolve(result); });
+      });
+      request.on('error', (error) => { reject(error); });
+      if (body) request.write(body);
+      request.end();
+    });
+  }
+
   getConfiguration(fs, workDir) {
     const fileContent = fs.readFileSync(workDir, { encoding: 'utf8', flag: 'r' });
     const allConfigurations = JSON.parse(fileContent);
@@ -214,111 +229,27 @@ class SOAgentCoreMethods {
 
   async insertRecord(https, conf, tableName, obj) {
     const options = this.getOptions(conf, tableName, null, 'insert');
-
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            request.end();
-            resolve(result);
-          });
-      });
-      request.on('error', (error) => {
-        reject(error);
-        request.end();
-      });
-      request.write(obj);
-      request.end();
-    });
+    return this._makeRequest(https, options, obj);
   }
 
   async readRecord(https, conf, tableName, sysId) {
     const options = this.getOptions(conf, tableName, sysId, 'read');
-
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            resolve(result);
-            request.end();
-          });
-      });
-      request.end();
-    });
+    return this._makeRequest(https, options);
   }
 
   async queryRecord(https, conf, tableName, queryParams) {
     const options = this.getOptions(conf, tableName, null, 'query', queryParams);
-
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            resolve(result);
-            request.end();
-          });
-      });
-      request.on('error', (error) => {
-        reject(error);
-        request.end();
-      });
-      request.end();
-    });
+    return this._makeRequest(https, options);
   }
 
   async updateRecord(https, conf, tableName, sysId, obj) {
     const options = this.getOptions(conf, tableName, sysId, 'update');
-
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            request.end();
-            resolve(result);
-          });
-      });
-      request.on('error', (error) => {
-        reject(error);
-        request.end();
-      });
-      request.write(obj);
-      request.end();
-    });
+    return this._makeRequest(https, options, obj);
   }
 
   async deleteRecord(https, conf, tableName, sysId) {
     const options = this.getOptions(conf, tableName, sysId, 'delete');
-
-    return new Promise((resolve, reject) => {
-      const request = https.request(options, (response) => {
-        let result = '';
-        response
-          .on('data', (data) => {
-            result += data;
-          })
-          .on('end', (er) => {
-            resolve(result);
-            request.end();
-          });
-      });
-      request.end();
-    });
+    return this._makeRequest(https, options);
   }
 
   async runScript(https, conf, scriptContent) {
@@ -329,17 +260,11 @@ class SOAgentCoreMethods {
         let result = '';
         response
           .setEncoding('utf8')
-          .on('data', (chunk) => {
-            result += chunk;
-          })
-          .on('end', () => {
-            resolve(result);
-          });
+          .on('data', (chunk) => { result += chunk; })
+          .on('end', () => { resolve(result); });
       });
 
-      request.on('error', (error) => {
-        reject(error);
-      });
+      request.on('error', (error) => { reject(error); });
 
       request.setTimeout(15000, () => {
         request.destroy(new Error('Request timeout'));
@@ -475,7 +400,9 @@ class SOAgentCoreMethods {
   async sendRequest(conf, optionsCustom, body = null) {
     try {
       const options = this.getOptions(conf, null, null, 'sendRequest');
-      Object.assign(options, optionsCustom);
+     const { headers: customHeaders, ...rest } = optionsCustom || {};
+      Object.assign(options, rest);
+      Object.assign(options.headers, customHeaders);
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -492,10 +419,6 @@ class SOAgentCoreMethods {
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       return await response.text();
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -506,7 +429,7 @@ class SOAgentCoreMethods {
   }
 
   async getSessionConfig(testPath) {
-    const sessionConfig = await Bun.file('./test/${testPath}.config').json();
+    const sessionConfig = await Bun.file(`./test/${testPath}.config`).json();
 
     return sessionConfig;
   }

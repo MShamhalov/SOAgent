@@ -68,7 +68,18 @@ class SOAgentInterface {
   }
 
   async readRecord(tableName, sysId) {
-    return await this.core.readRecord(this.https, this.conf, tableName, sysId);
+    try {
+      const RAWresult = await this.core.readRecord(this.https, this.conf, tableName, sysId);
+      const result = JSON.parse(RAWresult);
+      if (result.status !== "OK") {
+        this.errorProcessing(result);
+        return;
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Error reading record:", error.message);
+      throw error;
+    }
   }
 
   async queryRecord(tableName, queryParams = new Map()) {
@@ -123,7 +134,7 @@ class SOAgentInterface {
       }
       return result.data;
     } catch (error) {
-      console.error("Error updating record:", error.message);
+      console.error("Error deleting record:", error.message);
       throw error;
     }
   }
@@ -142,7 +153,7 @@ class SOAgentInterface {
 
       return result;
     } catch (error) {
-      console.error("Error runing script record:", error.message);
+      console.error("Error running script:", error.message);
       throw error;
     }
   }
@@ -193,7 +204,7 @@ class SOAgentInterface {
     let tab = 0;
     if (beautifier) tab = 2;
     const content2 = { [table_name]: content };
-    this.fs.writeFileSync(fileNameTemplate, JSON.stringify(content2, null, tab), (err) => { if (err) throw err; }, 'as');
+    this.fs.writeFileSync(fileNameTemplate, JSON.stringify(content2, null, tab));
   }
 
   async getDocId(tableNameOrId, recordSysId = null) {
@@ -227,8 +238,7 @@ class SOAgentInterface {
         return resultText;
       }
     } else {
-      
-      return "under constuction";
+      throw new Error('recordSysId is required to generate docId');
     }
   }
 

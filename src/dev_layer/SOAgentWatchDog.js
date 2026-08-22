@@ -1,4 +1,5 @@
 /** EE:SOAgentScript */
+// TODO: Заменить на конфигурацию TLS-сертификатов для самоподписанных инстансов
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const sa = require('#SOAgentInterface');
 
@@ -19,7 +20,7 @@ while (true) {
     const debugRecords = {
       query: `(level=debug^sys_created_by=${createdBy}^sys_created_atBETWEEN${minusNMinutsDataTime}@${currentDataTime})`,
       limit: 5,
-      fiels: ['message', 'sys_created_at'],
+      fields: ['message', 'sys_created_at'],
     };
     console.log(clearData(await getData('sys_log', debugRecords, 'Debug messages')));
     
@@ -28,7 +29,7 @@ while (true) {
       query: `(level=error^sys_created_by=${createdBy}^sys_created_atBETWEEN${minusNMinutsDataTime}@${currentDataTime})`,
       // query: `(level=error)`,
       limit: 5,
-      fiels: ['message', 'sys_created_at'],
+      fields: ['message', 'sys_created_at'],
     };
     console.log(clearData(await getData('sys_log_exception', exceptionRecords, 'Exception messages')));
 
@@ -36,7 +37,7 @@ while (true) {
     const errorRecords = {
       query: `(level=error^sys_created_by=${createdBy}^sys_created_atBETWEEN${minusNMinutsDataTime}@${currentDataTime})`,
       limit: 5,
-      fiels: ['message', 'sys_created_at'],
+      fields: ['message', 'sys_created_at'],
     };
     console.log(clearData(await getData('sys_log', errorRecords, 'Error messages')));
 

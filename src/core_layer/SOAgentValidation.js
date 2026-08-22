@@ -1,30 +1,17 @@
 class Validator {
   constructor() {}
-  // getMissingAttributes('table', object);
-  checkTableAttributes(object) {
-    let result = false;
-    if (
-      object.hasOwnProperty('name') && 
-      object.name &&
-      object.name 
-    ) {
-      result = true;
-    }
 
-    return result;
+  checkTableAttributes(object) {
+    if (!object || typeof object !== 'object') return false;
+    return Boolean(object.name && typeof object.name === 'string' && object.name.trim());
   }
 
   checkColumnAttributes(object) {
-    let result = false;
-    if (
-      object.hasOwnProperty('name') && 
-      object.name &&
-      object.name 
-    ) {
-      result = true;
-    }
-
-    return result;
+    if (!object || typeof object !== 'object') return false;
+    return Boolean(
+      object.column_name && typeof object.column_name === 'string' && object.column_name.trim() &&
+      object.table_id
+    );
   }
 }
 

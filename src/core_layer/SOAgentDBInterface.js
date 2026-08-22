@@ -1,7 +1,12 @@
 class SOAgentDBInterface {
+  static VALID_TABLE_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
   constructor(pathToSQLiteDBFile, tableName) {
     if (!pathToSQLiteDBFile) throw new Error('Database file path is required');
     if (!tableName) throw new Error('Table name is required');
+    if (!SOAgentDBInterface.VALID_TABLE_NAME.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`);
+    }
 
     const sqlite3 = require('sqlite3').verbose();
     this.table = tableName;
@@ -27,35 +32,42 @@ class SOAgentDBInterface {
     });
   }
 
-  async dbGetData(condition, returnedFields) {
-    try {
-      if (!/^[\w,\s]+$/.test(returnedFields)) {
-        throw new Error('Invalid field names');
-      }
-      
-      const rows = await new Promise((resolve, reject) => {
-        this.db.all(
-          `SELECT ${returnedFields} FROM ${this.table} WHERE ${condition}`,
-          [],
-          (err, rows) => err ? reject(err) : resolve(rows)
-        );
-      });
-      return rows;
-    } catch (queryError) {
-      console.error('Database query error:', queryError.message);
-      throw queryError;
+  _validateIdentifier(name) {
+    if (!/^[\w]+$/.test(name)) {
+      throw new Error(`Invalid identifier: ${name}`);
     }
+    return name;
   }
 
-  async dbUpdateField(targetField, value, condition) {
-    if (!/^\w+$/.test(targetField)) {
-      throw new Error('Invalid field name');
+  _validateFieldList(fields) {
+    if (!/^[\w,\s]+$/.test(fields)) {
+      throw new Error('Invalid field names');
     }
-    
+    return fields;
+  }
+
+  async dbGetData(conditionField, conditionValue, returnedFields) {
+    this._validateFieldList(returnedFields);
+    this._validateIdentifier(conditionField);
+
+    const rows = await new Promise((resolve, reject) => {
+      this.db.all(
+        `SELECT ${returnedFields} FROM ${this.table} WHERE ${conditionField} = ?`,
+        [conditionValue],
+        (err, rows) => err ? reject(err) : resolve(rows)
+      );
+    });
+    return rows;
+  }
+
+  async dbUpdateField(targetField, value, conditionField, conditionValue) {
+    this._validateIdentifier(targetField);
+    this._validateIdentifier(conditionField);
+
     await new Promise((resolve, reject) => {
       this.db.run(
-        `UPDATE ${this.table} SET ${targetField} = ? WHERE ${condition}`,
-        [value],
+        `UPDATE ${this.table} SET ${targetField} = ? WHERE ${conditionField} = ?`,
+        [value, conditionValue],
         (err) => err ? reject(err) : resolve()
       );
     });

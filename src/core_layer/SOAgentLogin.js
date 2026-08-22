@@ -52,7 +52,7 @@ class SOAgentLogin {
   }
 
   setTokenToConfig(instanceCandidate, tokenCandidate) {
-    let mode = tokenCandidate ? "fullInfoMode" : "tokenOnlyMode;"
+    let mode = tokenCandidate ? "fullInfoMode" : "tokenOnlyMode";
     let token;
     let instanceTitle;
     let data = {};
@@ -79,12 +79,7 @@ class SOAgentLogin {
     }
 
     data.accounts[instanceTitle].token = 'Bearer ' + token;
-    this.fs.writeFileSync(this.confFilePath, JSON.stringify(data, null, 2), (err) => {
-      if (err) {
-        console.error("Error can't write file!");
-        console.error(err);
-      }
-    });
+    this.fs.writeFileSync(this.confFilePath, JSON.stringify(data, null, 2));
   }
 
   async refreshToken() {
@@ -113,12 +108,7 @@ class SOAgentLogin {
 
     data.default_account = newAccount;
 
-    this.fs.writeFileSync(this.confFilePath, JSON.stringify(data, null, 2), (err) => {
-      if (err) {
-        console.error("Error can't write file!");
-        console.error(err);
-      }
-    });
+    this.fs.writeFileSync(this.confFilePath, JSON.stringify(data, null, 2));
     console.log(`Переключено на инстанс ${newAccount}`);
   }
 

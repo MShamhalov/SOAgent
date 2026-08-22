@@ -27,9 +27,15 @@
  * ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.                                    
  */
 
+function _escapeForScript(value) {
+  if (typeof value !== 'string') value = String(value);
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+}
+
 function findRecordById(objSysId) {
+  const safeId = _escapeForScript(objSysId);
   const scriptStr = `
-    const recordID = '${objSysId}';
+    const recordID = '${safeId}';
     const tables = new SimpleRecord('sys_db_table');
     tables.addEncodedQuery('name!=sys_re_table');
     tables.query();
@@ -67,9 +73,11 @@ function findRecordById(objSysId) {
 }
 
 function getDocId(tableName, recordId) {
+  const safeTableName = _escapeForScript(tableName);
+  const safeRecordId = _escapeForScript(recordId);
   const scriptStr = `
-    const tableId = getTableId('${tableName}');
-    const docId = ss.getDocIdByIds(tableId, '${recordId}');
+    const tableId = getTableId('${safeTableName}');
+    const docId = ss.getDocIdByIds(tableId, '${safeRecordId}');
     print(docId);
 
     function getTableId(table_name) {
@@ -91,10 +99,11 @@ function getInstance() {
 }
 
 function insertRecordFromTemplate(tableName, template, reModelId = null) {
+  const safeTableName = _escapeForScript(tableName);
   const script = `
     const templateObj = ${template};
     const reModelId = ${reModelId};
-    const record = new SimpleRecord('${tableName}');
+    const record = new SimpleRecord('${safeTableName}');
     record.initialize();
     if (reModelId) record.setReModelId('${reModelId}');
     for (const key in templateObj) {

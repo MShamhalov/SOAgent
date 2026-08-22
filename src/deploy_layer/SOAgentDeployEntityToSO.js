@@ -1,4 +1,5 @@
 /** EE:SOAgentScript */
+// TODO: Заменить на конфигурацию TLS-сертификатов для самоподписанных инстансов
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const sa = require('#SOAgentInterface');
 

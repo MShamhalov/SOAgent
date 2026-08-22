@@ -1,4 +1,5 @@
 /** EE:SOAgentScript */
+// TODO: Заменить на конфигурацию TLS-сертификатов для самоподписанных инстансов
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const sa = require('#SOAgentInterface');
@@ -30,6 +31,6 @@ import { $ } from 'bun';
   const res = await sa.queryRecord(targetEntity[0], queryParams);
   const fileContent = Bun.file(fullFilePath);
   await Bun.write(fullFilePath, res[0][targetField]);
-  console.log("Record secsefully syncronized from SO");
+  console.log("Record successfully synchronized from SO");
 
 })();
