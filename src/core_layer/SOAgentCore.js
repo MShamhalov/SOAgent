@@ -66,7 +66,6 @@ class SOAgentCoreMethods {
       method: options.method,
       headers: {
         'Content-Type': options.contentType,
-        ForceUseSession: 'true',
         Authorization: readyToken,
       },
     };
@@ -124,7 +123,7 @@ class SOAgentCoreMethods {
     ];
     let path = '';
     let method = 'POST';
-    let contentType = 'application/json';
+    let contentType = 'application/json; charset=UTF-8';
 
     if (stdActions.includes(action)) {
       switch (action) {
