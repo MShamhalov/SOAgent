@@ -2,11 +2,16 @@ const sa = require('#SOAgentInterface');
 
 async function getTaskByRequest(requestId, closedAndComletedTasksInclude = false) {
   const includedStates = [
-    'x5_new',
-    'x5_assigned',
-    'x5_pending',
-    'x5_in_progress',
-    'x5_approving'
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10'
   ];
   if (closedAndComletedTasksInclude) {
     includedStates.push('x5_completed', 'x5_closed');
