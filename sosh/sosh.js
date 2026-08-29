@@ -197,7 +197,7 @@ const commands = {
     const newInstance = {
       "protocol": "https",
       "instance": null,
-      "login": null,
+      "username": null,
       "password": null,
       "token": null
     };

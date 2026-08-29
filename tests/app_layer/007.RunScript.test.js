@@ -3,7 +3,7 @@ const sa = require('#SOAgentInterface');
 
 describe('RunScript Tests', () => {
     let recordId;
-    getTableIdScript = `
+    const getTableIdScript = `
         const table = new SimpleRecord('sys_db_table');
         table.get('name', 'task');
         print(table.getValue('sys_id'));
@@ -16,13 +16,13 @@ describe('RunScript Tests', () => {
         };
         const insertRecord = await sa.insertRecord('task', insertObject);
 
-        recordId = sa.getValue(insertRecord, 'sys_id');
-        expect(recordId).toMatch(new RegExp(/\d{18}/));
+        recordId = sa.getValues(insertRecord, 'sys_id');
+        expect(recordId).toMatch(/\d{18}/);
     });
 
     test('Run Script Action And Check DocID Calculation', async () => {
         const taskTableSysId = await sa.runScript(getTableIdScript);
-        getDocIdScript = `
+        const getDocIdScript = `
             const recordDocID = ss.getDocIdByIds('${taskTableSysId}', '${recordId}');
             print(recordDocID);
         `;

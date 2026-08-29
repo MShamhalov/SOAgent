@@ -10,6 +10,6 @@ const sa = new SOAgentInterface(envFilePath);
   };
   const insertRecord = await sa.insertRecord('task', insertObject);
   if (!insertRecord) return;
-  recordId = sa.getValue(insertRecord, 'sys_id');
+  recordId = sa.getValues(insertRecord, 'sys_id');
   console.log(recordId);
 })();

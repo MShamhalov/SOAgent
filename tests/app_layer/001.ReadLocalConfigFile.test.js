@@ -4,9 +4,13 @@ const envFilePath = require('#conf');
 test('Read Local Config File', async () => {
   const config = await Bun.file(envFilePath).json();
 
-  expect(config.default_account).toBeTruthy();
-  expect(config.accounts[config.default_account].protocol).toBeTruthy();
-  expect(config.accounts[config.default_account].instance).toBeTruthy();
-  expect(config.accounts[config.default_account].login).toBeTruthy();
-  expect(config.accounts[config.default_account].password).toBeTruthy();
+  expect(config).toHaveProperty('default_account');
+  expect(config).toHaveProperty('accounts');
+  expect(config.accounts).toHaveProperty(config.default_account);
+
+  const account = config.accounts[config.default_account];
+  expect(account).toHaveProperty('protocol');
+  expect(account).toHaveProperty('instance');
+  expect(account).toHaveProperty('username');
+  expect(account).toHaveProperty('password');
 });

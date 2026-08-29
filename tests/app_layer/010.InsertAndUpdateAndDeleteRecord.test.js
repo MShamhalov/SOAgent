@@ -11,8 +11,8 @@ describe('Insert Update Delete', () => {
     };
     const insertRecord = await sa.insertRecord('task', insertObject);
 
-    recordId = sa.getValue(insertRecord, 'sys_id');
-    expect(recordId).toMatch(new RegExp(/\d{18}/));
+    recordId = sa.getValues(insertRecord, 'sys_id');
+    expect(recordId).toMatch(/\d{18}/);
   });
 
   test('Update Record on Instance', async () => {
@@ -21,8 +21,8 @@ describe('Insert Update Delete', () => {
     };
     const updatedRecord = await sa.updateRecord('task', recordId, updateObject);
 
-    const SysId = sa.getValue(updatedRecord, 'sys_id');
-    expect(SysId).toMatch(new RegExp(/\d{18}/));
+    const SysId = sa.getValues(updatedRecord, 'sys_id');
+    expect(SysId).toMatch(/\d{18}/);
   });
 
   test('Delete Record on Instance', async () => {

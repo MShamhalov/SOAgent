@@ -174,7 +174,7 @@ class SOAgentCoreMethods {
   async getUserToken(https, conf, auth = 'auth_basic') {
     const options = this.getOptions(conf, null, null, auth);
     delete options.headers.Authorization;
-    const obj = `{"username": "${conf.login}", "password": "${conf.password}"}`;
+    const obj = `{"username": "${conf.username}", "password": "${conf.password}"}`;
 
     return new Promise((resolve, reject) => {
       const request = https.request(options, (response) => {

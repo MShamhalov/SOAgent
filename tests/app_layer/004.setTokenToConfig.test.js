@@ -9,5 +9,5 @@ test('Set Token To Config', async () => {
   const config = await Bun.file(envFilePath).json();
   const defAcc = config.default_account;
 
-  expect(config.accounts[defAcc].token).toMatch(new RegExp(/[A-Za-z0-9-_]{32}/));
+  expect(config.accounts[defAcc].token).toMatch(/[A-Za-z0-9-_]{32}/);
 });

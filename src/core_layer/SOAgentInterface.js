@@ -150,7 +150,7 @@ class SOAgentInterface {
     return JSON.parse(resultRAW).status;
   }
 
-  getValue(resultString, fieldName, index = 0) {
+  getValues(resultString, fieldName, index = 0) {
     if (typeof resultString === 'string') {
       const data = JSON.parse(resultString).data;
       let readyData;
@@ -314,6 +314,11 @@ class SOAgentInterface {
     const resultText = await this.runScript(scriptStr);
 
     return resultText;
+  }
+
+  // Алиас для обратной совместимости
+  getValue(resultString, fieldName, index = 0) {
+    return this.getValues(resultString, fieldName, index);
   }
 
 }

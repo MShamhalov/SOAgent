@@ -18,7 +18,7 @@ const sa = new SOAgent.SimpleOneAgentInterface(confFilePath);
       };
 
       const insertRecord = await sa.insertRecord('shmg_dev_open_data', insertObject);
-      const sysId = sa.getValue(insertRecord, 'sys_id');
+      const sysId = sa.getValues(insertRecord, 'sys_id');
       await sq.dbUpdateField('sys_id', sysId, `record_id=${currentRecord.record_id}`);
     }
   } catch (err) {

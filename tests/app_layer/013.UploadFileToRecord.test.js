@@ -20,9 +20,9 @@ describe('Последовательные тесты', () => {
       subject: 'Не работает беспроводная клавиатура Roxy M17',
       caller: '155931135900000001' // Admin user
     };
-    insertRecord = await sa.insertRecord('task', insertObject);
-    recordId = sa.getValue(insertRecord, 'sys_id');
-    expect(recordId).toMatch(new RegExp(/\d{18}/));
+    const insertRecord = await sa.insertRecord('task', insertObject);
+    recordId = sa.getValues(insertRecord, 'sys_id');
+    expect(recordId).toMatch(/\d{18}/);
   });
 
   test('Upload File To Record', async () => {

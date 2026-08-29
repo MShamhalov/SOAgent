@@ -1,6 +1,11 @@
 /** EE:SOAgentTestScript */
 const sa = require('#SOAgentInterface');
 
+afterAll(async () => {
+    const file = Bun.file('./uploadFile.json');
+    if (await file.exists()) await file.delete();
+});
+
 beforeAll(async () => {
     const uploadContent = {
         "task": [

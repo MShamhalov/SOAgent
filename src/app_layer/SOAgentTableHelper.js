@@ -49,7 +49,7 @@ class SOAgentTableHelper {
     if (tableAttributes) {
       // Используем не стандартную таблицу
       const table = await this.createTable(tableAttributes);
-      tableId = this.sa.getValue(table, 'sys_id');
+      tableId = this.sa.getValues(table, 'sys_id');
 
       // Создание полей в таблице choice
       const columnsOptions = [
@@ -102,14 +102,14 @@ class SOAgentTableHelper {
 
       // Создание записей в Choice таблице
       for (const option of choiceOptions) {
-        tableNameReal = this.sa.getValue(table, 'name');
+        tableNameReal = this.sa.getValues(table, 'name');
         await this.sa.insertRecord(tableNameReal, option);
       }
     }
 
     choiceAttributes.column_type_id = this.returnColumnTypeID('Choice');
     const columnRecord = await this.sa.insertRecord('sys_db_column', choiceAttributes);
-    const columnRecordId = this.sa.getValue(columnRecord, 'sys_id');
+    const columnRecordId = this.sa.getValues(columnRecord, 'sys_id');
 
     if (!tableAttributes) {
       for (const option of choiceOptions) {
