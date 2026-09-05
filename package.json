@@ -8,6 +8,8 @@
     "#SOAgentLogin": "./src/core_layer/SOAgentLogin.js",
     "#SOAgentTableDictionary": "./src/dictinaries/SOAgentTableDictionary.js",
     "#SOAgentTableHelper": "./src/app_layer/SOAgentTableHelper.js",
+    "#SOAgentDBInterface": "./src/core_layer/SOAgentDBInterface.js",
+    "#SOAgentTableAPIHelper": "./src/app_layer/SOAgentTableAPIHelper.js",
     "#conf": "./SOAgent.conf"
   }
 }

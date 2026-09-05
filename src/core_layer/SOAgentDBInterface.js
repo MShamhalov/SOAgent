@@ -1,22 +1,31 @@
+const { Database } = require('bun:sqlite');
+
 class SOAgentDBInterface {
   static VALID_TABLE_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
-  constructor(pathToSQLiteDBFile, tableName) {
+  constructor() {
+    this.table = null;
+    this.db = null;
+  }
+
+  init(pathToSQLiteDBFile, tableName) {
     if (!pathToSQLiteDBFile) throw new Error('Database file path is required');
     if (!tableName) throw new Error('Table name is required');
     if (!SOAgentDBInterface.VALID_TABLE_NAME.test(tableName)) {
       throw new Error(`Invalid table name: ${tableName}`);
     }
 
-    const sqlite3 = require('sqlite3').verbose();
-    this.table = tableName;
-    this.db = new sqlite3.Database(pathToSQLiteDBFile, (err) => {
-      if (err) throw new Error(`Database connection error: ${err.message}`);
-    });
+    const fs = require('fs');
+    if (!fs.existsSync(pathToSQLiteDBFile)) {
+      throw new Error(`Database file not found: ${pathToSQLiteDBFile}`);
+    }
 
-    process.on('SIGINT', async () => {
+    this.table = tableName;
+    this.db = new Database(pathToSQLiteDBFile);
+
+    process.on('SIGINT', () => {
       try {
-        await this.close();
+        this.close();
         console.log('Database connection closed');
         process.exit(0);
       } catch (closeError) {
@@ -24,12 +33,12 @@ class SOAgentDBInterface {
         process.exit(1);
       }
     });
+
+    return this;
   }
 
   close() {
-    return new Promise((resolve, reject) => {
-      this.db.close(err => err ? reject(err) : resolve());
-    });
+    this.db.close();
   }
 
   _validateIdentifier(name) {
@@ -46,32 +55,93 @@ class SOAgentDBInterface {
     return fields;
   }
 
-  async dbGetData(conditionField, conditionValue, returnedFields) {
+  _quoteIdentifier(name) {
+    return `"${name}"`;
+  }
+
+  dbGetData(conditionField, conditionValue, returnedFields, limit = null, page = 1) {
     this._validateFieldList(returnedFields);
     this._validateIdentifier(conditionField);
 
-    const rows = await new Promise((resolve, reject) => {
-      this.db.all(
-        `SELECT ${returnedFields} FROM ${this.table} WHERE ${conditionField} = ?`,
-        [conditionValue],
-        (err, rows) => err ? reject(err) : resolve(rows)
-      );
-    });
-    return rows;
+    const quotedFields = returnedFields.split(',').map(f => this._quoteIdentifier(f.trim())).join(', ');
+    let sql = `SELECT ${quotedFields} FROM "${this.table}" WHERE "${conditionField}" = ?`;
+    const params = [conditionValue];
+
+    if (limit) {
+      const offset = (page - 1) * limit;
+      sql += ` LIMIT ? OFFSET ?`;
+      params.push(limit, offset);
+    }
+
+    return this.db.prepare(sql).all(...params);
   }
 
-  async dbUpdateField(targetField, value, conditionField, conditionValue) {
+  dbGetAll(returnedFields = '*', limit = null, page = 1) {
+    this._validateFieldList(returnedFields);
+
+    const quotedFields = returnedFields === '*'
+      ? '*'
+      : returnedFields.split(',').map(f => this._quoteIdentifier(f.trim())).join(', ');
+    let sql = `SELECT ${quotedFields} FROM "${this.table}"`;
+    if (limit) {
+      const offset = (page - 1) * limit;
+      sql += ` LIMIT ? OFFSET ?`;
+      return this.db.prepare(sql).all(limit, offset);
+    }
+    return this.db.prepare(sql).all();
+  }
+
+  dbInsertRecord(obj) {
+    if (!obj || typeof obj !== 'object') {
+      throw new Error('Insert object is required');
+    }
+
+    const keys = Object.keys(obj);
+    for (const key of keys) {
+      this._validateIdentifier(key);
+    }
+
+    const columns = keys.map(k => this._quoteIdentifier(k)).join(', ');
+    const placeholders = keys.map(() => '?').join(', ');
+    const values = keys.map(k => obj[k]);
+
+    const stmt = this.db.prepare(
+      `INSERT INTO "${this.table}" (${columns}) VALUES (${placeholders})`
+    );
+    return stmt.run(...values);
+  }
+
+  dbDeleteRecord(conditionField, conditionValue) {
+    this._validateIdentifier(conditionField);
+
+    const stmt = this.db.prepare(
+      `DELETE FROM "${this.table}" WHERE "${conditionField}" = ?`
+    );
+    return stmt.run(conditionValue);
+  }
+
+  dbCount(conditionField = null, conditionValue = null) {
+    let stmt;
+    if (conditionField) {
+      this._validateIdentifier(conditionField);
+      stmt = this.db.prepare(
+        `SELECT COUNT(*) AS count FROM "${this.table}" WHERE "${conditionField}" = ?`
+      );
+      return stmt.get(conditionValue).count;
+    }
+    stmt = this.db.prepare(`SELECT COUNT(*) AS count FROM "${this.table}"`);
+    return stmt.get().count;
+  }
+
+  dbUpdateField(targetField, value, conditionField, conditionValue) {
     this._validateIdentifier(targetField);
     this._validateIdentifier(conditionField);
 
-    await new Promise((resolve, reject) => {
-      this.db.run(
-        `UPDATE ${this.table} SET ${targetField} = ? WHERE ${conditionField} = ?`,
-        [value, conditionValue],
-        (err) => err ? reject(err) : resolve()
-      );
-    });
+    const stmt = this.db.prepare(
+      `UPDATE "${this.table}" SET "${targetField}" = ? WHERE "${conditionField}" = ?`
+    );
+    stmt.run(value, conditionValue);
   }
 }
 
-module.exports = { SOAgentDBInterface };
+module.exports = new SOAgentDBInterface();
